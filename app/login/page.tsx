@@ -68,34 +68,33 @@ function LoginForm() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", background: "#0B0B0B", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", width: "100%", background: "var(--bg-deep)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       {/* CINEMATIC BACKGROUND */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden" }}>
         <div className={mounted ? "animate-pan-bg" : ""} style={{ position: "absolute", top: "-5%", left: "-5%", width: "110%", height: "110%" }}>
           <Image src="/login_bg.jpg" alt="ViceVerse City" fill style={{ objectFit: "cover", objectPosition: "center" }} priority />
         </div>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.75) 45%, rgba(0,0,0,0.97) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.5) 100%)" }} />
-        <div className="animate-glow" style={{ position: "absolute", top: "15%", left: "10%", width: "450px", height: "450px", background: "radial-gradient(circle, rgba(233,30,140,0.18) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "15%", left: "35%", width: "350px", height: "250px", background: "radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(50px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(7,11,20,0.7) 0%, rgba(7,11,20,0.85) 45%, rgba(7,11,20,0.98) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(7,11,20,0.4) 0%, transparent 20%, transparent 80%, rgba(7,11,20,0.7) 100%)" }} />
+        <div className="animate-glow" style={{ position: "absolute", top: "15%", left: "10%", width: "450px", height: "450px", background: "radial-gradient(circle, rgba(230,16,80,0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "15%", left: "35%", width: "350px", height: "250px", background: "radial-gradient(circle, rgba(56,225,232,0.1) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(50px)", pointerEvents: "none" }} />
       </div>
 
       {/* TOP BAR */}
-      <header style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid rgba(253,191,21,0.1)", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)" }}>
+      <header style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid var(--border-blue)", background: "rgba(7,11,20,0.7)", backdropFilter: "blur(10px)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
           <Image src="/ivc_logo.png" alt="IVC Club" width={40} height={40} style={{ objectFit: "contain" }} />
           <div>
             <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.7rem", color: "var(--primary)", letterSpacing: "2px" }}>IVC CLUB</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "rgba(255,255,255,0.35)", letterSpacing: "1px" }}>VVCE MYSURU</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "var(--text-muted)", letterSpacing: "1px" }}>VVCE MYSURU</div>
           </div>
         </div>
         <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "0.5rem" }}>
           <Image src="/viceverse_logo.png" alt="ViceVerse Ideathon" width={90} height={90} style={{ objectFit: "contain" }} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 8px var(--primary)" }} />
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "rgba(255,255,255,0.35)", letterSpacing: "2px" }}>PORTAL ONLINE</span>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 8px var(--cyan)" }} />
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", letterSpacing: "2px" }}>PORTAL ONLINE</span>
         </div>
       </header>
 
@@ -107,13 +106,13 @@ function LoginForm() {
           <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)", letterSpacing: "4px", marginBottom: "1.25rem" }}>
             // AUTHORIZED TEAM LEADER ACCESS
           </div>
-          <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(2.2rem,5vw,5.5rem)", lineHeight: 0.9, color: "#FFFFFF", marginBottom: "0.75rem" }} className="text-glow-yellow">
+          <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(2.2rem,5vw,5.5rem)", lineHeight: 0.9, color: "var(--text-main)", marginBottom: "0.75rem" }} className="text-glow-yellow">
             VICEVERSE<br />
             <span style={{ color: "var(--primary)" }}>TEAM LEADER</span><br />
             PORTAL
           </h1>
           <div style={{ width: "70px", height: "3px", background: "var(--pink)", margin: "1.25rem 0", boxShadow: "0 0 10px var(--pink)" }} />
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.65, maxWidth: "400px", marginBottom: "2rem" }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "var(--text-dim)", lineHeight: 1.65, maxWidth: "400px", marginBottom: "2rem" }}>
             Pre-registered Team Leader authentication portal. Sign in using your registered Email ID and unique Team Unique ID.
           </p>
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
@@ -129,12 +128,12 @@ function LoginForm() {
         {/* RIGHT — Login Panel */}
         <div style={{ width: "100%", maxWidth: "430px", flex: "1 1 320px", display: "flex", flexDirection: "column" }}>
           {wasDenied && (
-            <div className={mounted ? "animate-slide-up" : ""} style={{ padding: "0.65rem 1rem", background: "rgba(233,30,140,0.1)", border: "1px solid rgba(233,30,140,0.4)", marginBottom: "0.75rem" }}>
+            <div className={mounted ? "animate-slide-up" : ""} style={{ padding: "0.65rem 1rem", background: "rgba(230,16,80,0.1)", border: "1px solid var(--primary)", marginBottom: "0.75rem", borderRadius: "4px" }}>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--pink)", letterSpacing: "2px" }}>WARNING — TEAM LEADER SESSION REQUIRED</span>
             </div>
           )}
 
-          <div className={`vv-card vv-corners ${mounted ? "animate-slide-up" : ""}`} style={{ padding: "2rem 2rem 1.75rem", boxShadow: "0 20px 60px rgba(0,0,0,0.85), 0 0 40px rgba(233,30,140,0.06)", backdropFilter: "blur(14px)", background: "rgba(12,12,12,0.93)" }}>
+          <div className={`vv-card vv-corners ${mounted ? "animate-slide-up" : ""}`} style={{ padding: "2rem 2rem 1.75rem", boxShadow: "0 20px 60px rgba(0,0,0,0.85)", backdropFilter: "blur(14px)", background: "var(--bg-card)", border: "1px solid var(--border-blue)" }}>
 
             {/* Header */}
             <div style={{ marginBottom: "1.75rem" }}>

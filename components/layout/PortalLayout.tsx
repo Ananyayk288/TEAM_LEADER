@@ -45,19 +45,19 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const Nav = () => (
     <div style={{ display:"flex", flexDirection:"column", height:"100%" }}>
       {/* Brand */}
-      <div style={{ padding:"1.25rem 1rem", borderBottom:"1px solid rgba(253,191,21,0.12)" }}>
+      <div style={{ padding:"1.25rem 1rem", borderBottom:"1px solid var(--border-blue)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", marginBottom:"0.75rem" }}>
           <Image src="/ivc_logo.png" alt="IVC" width={34} height={34} style={{ objectFit:"contain" }} priority />
           <div>
             <div style={{ fontFamily:"var(--font-heading)", fontSize:"0.75rem", color:"var(--primary)", letterSpacing:"2px" }}>TEAM LEADER</div>
-            <div style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"var(--text-muted)", letterSpacing:"1px" }}>PORTAL // VICEVERSE</div>
+            <div style={{ fontFamily:"var(--font-mono)", fontSize: "0.5rem", color:"var(--text-muted)", letterSpacing:"1px" }}>PORTAL // VICEVERSE</div>
           </div>
         </div>
         <div style={{ display:"flex", justifyContent:"center", marginBottom:"0.6rem" }}>
           <Image src="/viceverse_logo.png" alt="ViceVerse" width={72} height={72} style={{ objectFit:"contain" }} priority />
         </div>
         {authUser && (
-          <div style={{ padding:"0.5rem 0.6rem", background:"var(--primary-dim)", border:"1px solid rgba(253,191,21,0.18)" }}>
+          <div style={{ padding:"0.5rem 0.6rem", background:"var(--primary-dim)", border:"1px solid var(--border-yellow)", borderRadius:"4px" }}>
             <div style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"var(--text-muted)", letterSpacing:"1px" }}>OPERATIVE</div>
             <div style={{ fontFamily:"var(--font-heading)", fontSize:"0.8rem", color:"var(--primary)", marginTop:"0.15rem" }}>{authUser.teamName}</div>
             <div style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"var(--text-muted)" }}>{authUser.id}</div>
@@ -67,16 +67,16 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
       {/* Nav */}
       <nav style={{ flex:1, padding:"0.75rem 0", overflowY:"auto" }}>
-        <div style={{ padding:"0 0.75rem 0.4rem", fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"rgba(255,255,255,0.18)", letterSpacing:"2px" }}>
-          // TACTICAL WORKFLOW
+        <div style={{ padding:"0 0.75rem 0.4rem", fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"var(--text-muted)", letterSpacing:"2px" }}>
+          // COMMAND NAVIGATION
         </div>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.path || (item.path === "/dashboard" && pathname === "/");
           return (
             <Link key={item.path} href={item.path} className={`vv-nav-item ${isActive ? "active" : ""}`} onClick={() => setMobileOpen(false)}>
-              <span style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:isActive?"var(--primary)":"rgba(255,255,255,0.18)", minWidth:"18px" }}>{item.code}</span>
-              <Icon size={13} style={{ color:isActive?"var(--primary)":"rgba(255,255,255,0.35)", flexShrink:0 }} />
+              <span style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:isActive?"var(--primary)":"var(--text-muted)", minWidth:"18px" }}>{item.code}</span>
+              <Icon size={13} style={{ color:isActive?"var(--primary)":"var(--text-muted)", flexShrink:0 }} />
               <span style={{ flex:1 }}>{item.name}</span>
               {isActive && <ChevronRight size={11} style={{ color:"var(--primary)" }} />}
             </Link>
@@ -85,7 +85,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       </nav>
 
       {/* Footer info */}
-      <div style={{ padding:"0.75rem 1rem", borderTop:"1px solid rgba(253,191,21,0.1)" }}>
+      <div style={{ padding:"0.75rem 1rem", borderTop:"1px solid var(--border-blue)" }}>
         <div style={{ fontFamily:"var(--font-mono)", fontSize:"0.5rem", color:"var(--text-muted)", letterSpacing:"1px" }}>
           <span style={{ color:"var(--cyan)" }}>&#9679;</span>&#160; GRID ONLINE &middot; <ClockWidget />
         </div>
@@ -96,24 +96,24 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:"var(--bg-deep)" }}>
       {/* Desktop sidebar */}
-      <aside style={{ width:"230px", flexShrink:0, background:"#0F0F0F", borderRight:"1px solid rgba(253,191,21,0.12)", display:"flex", flexDirection:"column" }} className="hidden lg:flex">
+      <aside style={{ width:"230px", flexShrink:0, background:"var(--bg-secondary)", borderRight:"1px solid var(--border-blue)", display:"flex", flexDirection:"column" }} className="hidden lg:flex">
         <Nav />
       </aside>
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div onClick={() => setMobileOpen(false)} style={{ position:"fixed", inset:0, zIndex:40, background:"rgba(0,0,0,0.75)", backdropFilter:"blur(4px)" }} />
+        <div onClick={() => setMobileOpen(false)} style={{ position:"fixed", inset:0, zIndex:40, background:"rgba(7,11,20,0.85)", backdropFilter:"blur(4px)" }} />
       )}
 
       {/* Mobile sidebar */}
-      <aside style={{ position:"fixed", left:0, top:0, bottom:0, zIndex:50, width:"230px", background:"#0F0F0F", borderRight:"1px solid rgba(253,191,21,0.12)", display:"flex", flexDirection:"column", transform:mobileOpen?"translateX(0)":"translateX(-100%)", transition:"transform 0.25s cubic-bezier(0.16,1,0.3,1)", willChange:"transform" }} className="lg:hidden">
+      <aside style={{ position:"fixed", left:0, top:0, bottom:0, zIndex:50, width:"230px", background:"var(--bg-secondary)", borderRight:"1px solid var(--border-blue)", display:"flex", flexDirection:"column", transform:mobileOpen?"translateX(0)":"translateX(-100%)", transition:"transform 0.25s cubic-bezier(0.16,1,0.3,1)", willChange:"transform" }} className="lg:hidden">
         <Nav />
       </aside>
 
       {/* Main Container */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
         {/* TOP HEADER WITH EASILY ACCESSIBLE LOGOUT BUTTON */}
-        <header style={{ height:"54px", flexShrink:0, background:"rgba(11,11,11,0.96)", borderBottom:"1px solid rgba(253,191,21,0.12)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 1.25rem", position:"sticky", top:0, zIndex:30 }}>
+        <header style={{ height:"54px", flexShrink:0, background:"rgba(7,11,20,0.96)", borderBottom:"1px solid var(--border-blue)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 1.25rem", position:"sticky", top:0, zIndex:30 }}>
           <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
             <button onClick={() => setMobileOpen((o)=>!o)} style={{ background:"none", border:"none", color:"var(--primary)", cursor:"pointer", padding:"0.25rem" }} className="lg:hidden" aria-label="Toggle Navigation Menu">
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -129,9 +129,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
           <div style={{ display:"flex", alignItems:"center", gap:"0.85rem" }}>
             {authUser && (
-              <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.25rem 0.6rem", border:"1px solid rgba(253,191,21,0.18)", background:"rgba(253,191,21,0.05)" }}>
-                <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"var(--primary)", boxShadow:"0 0 6px var(--primary)" }} />
-                <span style={{ fontFamily:"var(--font-heading)", fontSize: "0.65rem", color:"var(--primary)", letterSpacing:"1px" }}>{authUser.teamName}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.25rem 0.6rem", border:"1px solid var(--border-blue)", background:"var(--bg-elevated)", borderRadius:"4px" }}>
+                <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"var(--cyan)", boxShadow:"0 0 6px var(--cyan)" }} />
+                <span style={{ fontFamily:"var(--font-heading)", fontSize: "0.65rem", color:"var(--text-main)", letterSpacing:"1px" }}>{authUser.teamName}</span>
               </div>
             )}
 
@@ -143,10 +143,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                 display:"flex",
                 alignItems:"center",
                 gap:"0.4rem",
-                padding:"0.3rem 0.75rem",
-                background:"rgba(233,30,140,0.12)",
-                border:"1px solid var(--pink)",
-                color:"var(--pink)",
+                padding:"0.35rem 0.85rem",
+                background:"var(--primary)",
+                border:"none",
+                borderRadius:"4px",
+                color:"#fff",
                 fontFamily:"var(--font-heading)",
                 fontSize:"0.7rem",
                 letterSpacing:"1px",
@@ -155,11 +156,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "var(--pink)";
-                e.currentTarget.style.color = "#fff";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(233,30,140,0.12)";
-                e.currentTarget.style.color = "var(--pink)";
+                e.currentTarget.style.background = "var(--primary)";
               }}
             >
               <LogOut size={13} />
@@ -168,7 +167,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </div>
         </header>
 
-        <main style={{ flex:1, padding:"2rem 1.5rem", maxWidth:"1200px", width:"100%", margin:"0 auto" }}>
+        <main className="vv-main-container" style={{ flex:1 }}>
           {children}
         </main>
       </div>
