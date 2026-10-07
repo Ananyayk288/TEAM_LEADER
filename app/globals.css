@@ -1,9 +1,9 @@
 @import url("https://fonts.cdnfonts.com/css/pricedown");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
   --primary: #FDBF15;
@@ -55,7 +55,7 @@ body{background-color:var(--bg-deep);color:var(--text-main);font-family:var(--fo
 .animate-terminal-blink{animation:terminal-blink 1s step-end infinite;}
 .animate-auth-bar{animation:auth-bar 1.8s ease both;}
 
-.vv-button{display:inline-flex;align-items:center;justify-content:center;gap:0.75rem;background:var(--primary);color:#000;padding:1rem 2.4rem;font-family:var(--font-heading);font-size:1.4rem;letterSpacing:1px;border:none;cursor:pointer;text-transform:uppercase;position:relative;overflow:hidden;z-index:1;transition:var(--transition);animation:cyber-pulse 2.5s infinite ease-in-out;width:100%;will-change:transform;}
+.vv-button{display:inline-flex;align-items:center;justify-content:center;gap:0.75rem;background:var(--primary);color:#000;padding:1rem 2.4rem;font-family:var(--font-heading);font-size:1.4rem;letter-spacing:1px;border:none;cursor:pointer;text-transform:uppercase;position:relative;overflow:hidden;z-index:1;transition:var(--transition);animation:cyber-pulse 2.5s infinite ease-in-out;width:100%;will-change:transform;}
 .vv-button::before{content:"";position:absolute;inset:0;background:white;width:0%;transition:width 0.25s ease;z-index:-1;}
 .vv-button::after{content:"";position:absolute;top:0;left:-150%;width:60px;height:100%;background:linear-gradient(to right,rgba(255,255,255,0) 0%,rgba(255,255,255,0.5) 50%,rgba(255,255,255,0) 100%);transform:skewX(-25deg);z-index:2;animation:shimmer-glow 4.5s infinite linear;pointer-events:none;}
 .vv-button:hover::before{width:100%;}
