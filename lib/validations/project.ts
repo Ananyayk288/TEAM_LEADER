@@ -1,17 +1,17 @@
 // lib/validations/project.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Zod schemas for the Project & Final Submission form.
-// Ensures PPT / Presentation is a REQUIRED shareable URL string (no file upload).
-// Optional links: GitHub, Pitch Deck, Prototype/Demo, Additional Material.
+// Ensures PPT / Presentation is a REQUIRED shareable HTTPS URL string (no file upload).
+// Accepts ONLY https:// URLs. Rejects http:, javascript:, data:, and other schemes.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { z } from "zod";
 
-const isValidUrl = (url?: string) => {
+const isStrictHttpsUrl = (url?: string) => {
   if (!url || url.trim() === "") return true;
   try {
-    const parsed = new URL(url);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    const parsed = new URL(url.trim());
+    return parsed.protocol === "https:";
   } catch {
     return false;
   }
@@ -47,39 +47,39 @@ export const ProjectDataSchema = z.object({
     .min(2, "Technologies used is required")
     .max(500, "Technologies used must be 500 characters or fewer"),
 
-  // PPT / PRESENTATION LINK — REQUIRED (URL link only, NO FILE UPLOADS)
+  // PPT / PRESENTATION LINK — REQUIRED (Strictly https:// URLs only)
   pptUrl: z
     .string()
     .min(1, "PPT / Presentation Link is required")
     .refine((val) => {
       try {
-        const u = new URL(val);
-        return u.protocol === "http:" || u.protocol === "https:";
+        const u = new URL(val.trim());
+        return u.protocol === "https:";
       } catch {
         return false;
       }
-    }, "Please enter a valid presentation URL (e.g., https://drive.google.com/..., https://canva.com/...)"),
+    }, "Please enter a valid presentation URL starting with https:// (e.g., https://drive.google.com/..., https://canva.com/...)"),
 
-  // OPTIONAL LINKS
+  // OPTIONAL LINKS — Strictly https:// URLs only if provided
   githubUrl: z
     .string()
     .optional()
-    .refine(isValidUrl, "Please enter a valid GitHub Repository URL"),
+    .refine(isStrictHttpsUrl, "GitHub Repository URL must start with https://"),
 
   pitchDeckUrl: z
     .string()
     .optional()
-    .refine(isValidUrl, "Please enter a valid Pitch Deck URL"),
+    .refine(isStrictHttpsUrl, "Pitch Deck URL must start with https://"),
 
   demoUrl: z
     .string()
     .optional()
-    .refine(isValidUrl, "Please enter a valid Prototype / Demo URL"),
+    .refine(isStrictHttpsUrl, "Prototype / Demo URL must start with https://"),
 
   additionalMaterialUrl: z
     .string()
     .optional()
-    .refine(isValidUrl, "Please enter a valid Additional Material URL"),
+    .refine(isStrictHttpsUrl, "Additional Material URL must start with https://"),
 
   adminFieldValues: z.record(z.string(), z.string()).optional(),
 });

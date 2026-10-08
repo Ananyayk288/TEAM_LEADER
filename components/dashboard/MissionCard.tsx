@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { MOCK_MISSION } from "@/lib/mockData";
 
 const STATUS_STYLE: Record<string, { label: string; color: string; bg: string }> = {
@@ -44,17 +45,18 @@ export default function MissionCard() {
           <div style={{fontFamily:"var(--font-mono)",fontSize:"0.6rem",color:"var(--text-muted)",letterSpacing:"1px",marginBottom:"0.2rem"}}>DEADLINE</div>
           <div style={{fontFamily:"var(--font-mono)",fontSize:"0.8rem",color:"var(--primary)"}}>{m.deadline}</div>
         </div>
-        <a href="/project" style={{
+        <Link href="/project" style={{
           display:"inline-flex",alignItems:"center",gap:"0.4rem",
           fontFamily:"var(--font-heading)",fontSize:"0.8rem",
           color:"var(--pink)",border:"1px solid var(--pink)",
           padding:"0.4rem 1rem",textDecoration:"none",letterSpacing:"1px",
           transition:"var(--transition)",
+          cursor:"pointer",
         }}
         onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="var(--pink)";(e.currentTarget as HTMLElement).style.color="#000";}}
         onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="transparent";(e.currentTarget as HTMLElement).style.color="var(--pink)";}}>
           VIEW DETAILS ▶
-        </a>
+        </Link>
       </div>
     </div>
   );

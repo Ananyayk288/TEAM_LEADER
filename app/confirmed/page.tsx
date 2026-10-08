@@ -11,18 +11,18 @@ import { ShieldAlert, ArrowRight, CheckCircle2 } from "lucide-react";
 function TeamQRCard({ teamId, teamName, isApproved }: { teamId: string; teamName: string; isApproved: boolean }) {
   if (!isApproved) {
     return (
-      <div className="vv-card vv-corners" style={{ padding: "2rem", height: "100%", border: "1px solid rgba(233,30,140,0.3)", background: "rgba(233,30,140,0.03)", textAlign: "center" }}>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "1.25rem" }}>
-          // TEAM QR — LOCKED
+      <div className="vv-card vv-corners" style={{ padding: "2rem", height: "100%", border: "1px solid rgba(253,191,21,0.3)", background: "rgba(253,191,21,0.03)", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--primary)", letterSpacing: "2px", marginBottom: "1.25rem" }}>
+          // TEAM QR — LOCKED UNTIL APPROVAL
         </div>
-        <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(233,30,140,0.1)", border: "1px solid var(--pink)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
-          <ShieldAlert size={28} style={{ color: "var(--pink)" }} />
+        <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(253,191,21,0.1)", border: "1px solid var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
+          <ShieldAlert size={28} style={{ color: "var(--primary)" }} />
         </div>
-        <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: "var(--pink)", marginBottom: "0.5rem" }}>
+        <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: "var(--primary)", marginBottom: "0.5rem" }}>
           PAYMENT VERIFICATION PENDING
         </div>
         <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-          Team QR Code is generated only after Admin verifies your payment proof.
+          Team QR Code & Registration Confirmation are unlocked only after Admin verifies and approves your payment proof.
         </p>
         <Link
           href="/payment"
@@ -31,12 +31,13 @@ function TeamQRCard({ teamId, teamName, isApproved }: { teamId: string; teamName
             alignItems: "center",
             gap: "0.5rem",
             padding: "0.65rem 1.25rem",
-            background: "var(--pink)",
-            color: "#fff",
+            background: "var(--primary)",
+            color: "#000",
             fontFamily: "var(--font-heading)",
             fontSize: "0.78rem",
             letterSpacing: "1px",
             textDecoration: "none",
+            fontWeight: 700,
           }}
         >
           CHECK PAYMENT STATUS <ArrowRight size={13} />
@@ -96,10 +97,10 @@ export default function ConfirmedPage() {
 
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg-deep)", paddingBottom: "3rem" }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="vv-main-container">
         {/* Page Header */}
         <div style={{ marginBottom: "2rem" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--pink)", letterSpacing: "3px", marginBottom: "0.5rem" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
             // EVENT DAY & ATTENDANCE DECK
           </div>
           <h1 className="text-glow-yellow" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem,4vw,3rem)", lineHeight: 1.1, marginBottom: "0.85rem" }}>
@@ -112,18 +113,19 @@ export default function ConfirmedPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: "1rem",
-              background: isApproved ? "rgba(0,255,136,0.07)" : "rgba(233,30,140,0.07)",
-              border: `1px solid ${isApproved ? "rgba(0,255,136,0.4)" : "rgba(233,30,140,0.4)"}`,
+              background: isApproved ? "rgba(0,255,136,0.07)" : "rgba(253,191,21,0.07)",
+              border: `1px solid ${isApproved ? "rgba(0,255,136,0.4)" : "rgba(253,191,21,0.4)"}`,
               padding: "0.85rem 1.5rem",
+              borderRadius: "4px",
             }}
           >
-            <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: isApproved ? "#00ff88" : "var(--pink)", boxShadow: `0 0 12px ${isApproved ? "#00ff88" : "var(--pink)"}` }} />
+            <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: isApproved ? "#00ff88" : "var(--primary)", boxShadow: `0 0 12px ${isApproved ? "#00ff88" : "var(--primary)"}` }} />
             <div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: isApproved ? "#00ff88" : "var(--pink)", letterSpacing: "1px" }}>
-                {isApproved ? "READY FOR EVENT ✓" : "PAYMENT VERIFICATION PENDING"}
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: isApproved ? "#00ff88" : "var(--primary)", letterSpacing: "1px" }}>
+                {isApproved ? "REGISTRATION CONFIRMED ✓" : "PAYMENT VERIFICATION PENDING"}
               </div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--text-dim)", marginTop: "0.15rem" }}>
-                {isApproved ? "Your squad is confirmed and ready for ViceVerse." : "Upload payment proof in Payment section to unlock Team QR."}
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0", marginTop: "0.15rem" }}>
+                {isApproved ? "Confirmation email sent to Team Leader. Your squad is confirmed for ViceVerse." : "Your team registration will be confirmed and Team QR generated once payment is verified by organizers."}
               </div>
             </div>
           </div>
@@ -131,36 +133,36 @@ export default function ConfirmedPage() {
 
         {/* Squad Status Grid */}
         <div className="vv-card vv-corners" style={{ padding: "1.75rem", marginBottom: "2rem" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "1.25rem" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "1.25rem" }}>
             // SQUAD OVERVIEW
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: "0.75rem" }}>
-            <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)" }}>TEAM NAME</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.95rem", color: "var(--primary)" }}>{state.teamName}</div>
+            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0" }}>TEAM NAME</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: "var(--primary)", marginTop: "0.2rem" }}>{state.teamName}</div>
             </div>
-            <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)" }}>TEAM ID</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.95rem", color: "var(--cyan)" }}>{state.teamId}</div>
+            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0" }}>TEAM ID</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: "var(--cyan)", marginTop: "0.2rem" }}>{state.teamId}</div>
             </div>
-            <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)" }}>MEMBERS</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.95rem", color: "var(--text-main)" }}>{state.members.length} / 3</div>
+            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0" }}>MEMBERS</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: "var(--text-main)", marginTop: "0.2rem" }}>{state.members.length} / 3</div>
             </div>
-            <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)" }}>DOMAIN</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.95rem", color: "var(--cyan)" }}>{state.selectedDomainName || "Cybersecurity"}</div>
+            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0" }}>SELECTED DOMAIN</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: "var(--cyan)", marginTop: "0.2rem" }}>{state.selectedDomainName || "Cybersecurity"}</div>
             </div>
-            <div style={{ padding: "0.75rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)" }}>PAYMENT STATUS</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.95rem", color: isApproved ? "#00ff88" : "var(--pink)" }}>{state.paymentStatus}</div>
+            <div style={{ padding: "0.85rem", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#9AA8C0" }}>PAYMENT STATUS</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: isApproved ? "#00ff88" : "var(--pink)", marginTop: "0.2rem" }}>{state.paymentStatus}</div>
             </div>
           </div>
         </div>
 
         {/* Two Column Layout: Squad Roster + Team QR Card */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
           {/* Squad Roster */}
           <div className="vv-card vv-corners" style={{ padding: "1.75rem" }}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--cyan)", letterSpacing: "2px", marginBottom: "1.25rem" }}>

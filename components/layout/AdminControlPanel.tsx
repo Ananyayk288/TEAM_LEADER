@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   getWorkflowState,
+  updateWorkflowState,
   adminApprovePayment,
   adminRejectPayment,
   adminToggleFinalHours,
@@ -140,6 +141,59 @@ export default function AdminControlPanel() {
               </button>
             </div>
 
+            {/* SECTION 0: EDIT / SEED PRE-REGISTERED TEAM & DOMAIN */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", padding: "1.25rem" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--primary)", letterSpacing: "1.5px", marginBottom: "0.85rem" }}>
+                // 0. ADMIN PRE-REGISTERED TEAM & DOMAIN EDITOR
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1rem" }}>
+                <div>
+                  <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", display: "block", marginBottom: "0.2rem" }}>TEAM NAME</label>
+                  <input
+                    type="text"
+                    value={state.teamName}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateWorkflowState((prev) => ({ ...prev, teamName: val }));
+                      refreshState();
+                    }}
+                    style={{ width: "100%", background: "#000", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontFamily: "var(--font-mono)", fontSize: "0.75rem", padding: "0.4rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", display: "block", marginBottom: "0.2rem" }}>TEAM UNIQUE ID</label>
+                  <input
+                    type="text"
+                    value={state.teamId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateWorkflowState((prev) => ({ ...prev, teamId: val }));
+                      refreshState();
+                    }}
+                    style={{ width: "100%", background: "#000", border: "1px solid rgba(255,255,255,0.15)", color: "var(--cyan)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", padding: "0.4rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--text-muted)", display: "block", marginBottom: "0.2rem" }}>SELECTED DOMAIN</label>
+                  <select
+                    value={state.selectedDomainId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      const name = id === "agentic-ai" ? "AGENTIC AI" : id === "cyber-security" ? "CYBER SECURITY" : id === "computer-vision" ? "COMPUTER VISION" : "ROBOTICS & DRONES";
+                      updateWorkflowState((prev) => ({ ...prev, selectedDomainId: id, selectedDomainName: name }));
+                      refreshState();
+                    }}
+                    style={{ width: "100%", background: "#000", border: "1px solid rgba(255,255,255,0.15)", color: "var(--pink)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", padding: "0.4rem" }}
+                  >
+                    <option value="cyber-security">CYBER SECURITY</option>
+                    <option value="agentic-ai">AGENTIC AI</option>
+                    <option value="computer-vision">COMPUTER VISION</option>
+                    <option value="robotics-drones">ROBOTICS & DRONES</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             {/* SECTION 1: PAYMENT VERIFICATION */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", padding: "1.25rem" }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--cyan)", letterSpacing: "1.5px", marginBottom: "0.85rem" }}>
@@ -246,10 +300,10 @@ export default function AdminControlPanel() {
               </div>
             </div>
 
-            {/* SECTION 2: FINAL HOURS SUBMISSION WINDOW */}
+            {/* SECTION 2: FINAL HOURS PROJECT WINDOW & REOPEN SUBMISSION */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", padding: "1.25rem" }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--primary)", letterSpacing: "1.5px", marginBottom: "0.85rem" }}>
-                // 2. FINAL HOURS PROJECT WINDOW
+                // 2. FINAL HOURS PROJECT & SUBMISSION LOCK
               </div>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
@@ -261,27 +315,53 @@ export default function AdminControlPanel() {
                 </div>
               </div>
 
-              <button
-                onClick={handleToggleFinalHours}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  padding: "0.75rem",
-                  background: state.submissionWindowOpen ? "rgba(233,30,140,0.15)" : "rgba(0,255,136,0.15)",
-                  border: `1px solid ${state.submissionWindowOpen ? "var(--pink)" : "#00ff88"}`,
-                  color: state.submissionWindowOpen ? "var(--pink)" : "#00ff88",
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "0.8rem",
-                  cursor: "pointer",
-                  letterSpacing: "1px",
-                }}
-              >
-                <Clock size={15} />
-                {state.submissionWindowOpen ? "LOCK PROJECT WINDOW" : "OPEN PROJECT WINDOW (FINAL HOURS)"}
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <button
+                  onClick={handleToggleFinalHours}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    padding: "0.75rem",
+                    background: state.submissionWindowOpen ? "rgba(233,30,140,0.15)" : "rgba(0,255,136,0.15)",
+                    border: `1px solid ${state.submissionWindowOpen ? "var(--pink)" : "#00ff88"}`,
+                    color: state.submissionWindowOpen ? "var(--pink)" : "#00ff88",
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  <Clock size={15} />
+                  {state.submissionWindowOpen ? "LOCK PROJECT WINDOW" : "OPEN PROJECT WINDOW (FINAL HOURS)"}
+                </button>
+
+                <button
+                  onClick={() => {
+                    updateWorkflowState((prev) => ({ ...prev, submissionReopened: !prev.submissionReopened }));
+                    refreshState();
+                  }}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    padding: "0.6rem",
+                    background: state.submissionReopened ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                    border: `1px solid ${state.submissionReopened ? "var(--cyan)" : "rgba(255,255,255,0.2)"}`,
+                    color: state.submissionReopened ? "var(--cyan)" : "var(--text-muted)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.7rem",
+                    cursor: "pointer",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  {state.submissionReopened ? "🔒 LOCK SUBMISSION AGAIN" : "🔓 ADMIN REOPEN SUBMISSION (submissionReopened = true)"}
+                </button>
+              </div>
             </div>
 
             {/* SECTION 3: RESULTS PUBLISHING */}

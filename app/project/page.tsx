@@ -88,7 +88,8 @@ export default function ProjectPage() {
     try {
       const wf = getWorkflowState();
       // Sync Dev Toggle with Workflow State
-      devSetProjectWindow(wf.submissionWindowOpen);
+      const isOpen = wf.finalWindowOpen || wf.submissionWindowOpen;
+      devSetProjectWindow(isOpen);
       const r = await getProjectRecord();
       setRecord(r);
     } catch (e) {
@@ -101,7 +102,9 @@ export default function ProjectPage() {
   useEffect(() => {
     loadRecord();
     window.addEventListener("vv_workflow_updated", loadRecord);
-    return () => window.removeEventListener("vv_workflow_updated", loadRecord);
+    return () => {
+      window.removeEventListener("vv_workflow_updated", loadRecord);
+    };
   }, [loadRecord]);
 
   // ── Save draft ────────────────────────────────────────────────────────────
@@ -109,6 +112,12 @@ export default function ProjectPage() {
     setIsSaving(true);
     setDraftSaved(false);
     try {
+      await fetch("/api/project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, isFinalSubmit: false }),
+        credentials: "same-origin",
+      });
       await saveProjectDraft(data);
       setDraftSaved(true);
       setRecord((prev) =>
@@ -124,11 +133,21 @@ export default function ProjectPage() {
   const handleSubmitProject = useCallback(async (data: ProjectData) => {
     setIsSubmittingFinal(true);
     try {
-      const result = await submitProject(data);
-      if (result.success) {
-        setFlashSubmitted(true);
-        await loadRecord();
+      const res = await fetch("/api/project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, isFinalSubmit: true }),
+        credentials: "same-origin",
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Submission failed");
       }
+      await submitProject(data);
+      setFlashSubmitted(true);
+      await loadRecord();
+    } catch (err: any) {
+      console.error("Project submission error:", err);
     } finally {
       setIsSubmittingFinal(false);
     }
@@ -137,7 +156,8 @@ export default function ProjectPage() {
   // ── Dev toggle ───────────────────────────────────────────────────────────
   const devToggleWindow = () => {
     const wf = getWorkflowState();
-    adminToggleFinalHours(!wf.submissionWindowOpen);
+    const current = wf.finalWindowOpen || wf.submissionWindowOpen;
+    adminToggleFinalHours(!current);
     loadRecord();
   };
 
@@ -152,8 +172,14 @@ export default function ProjectPage() {
     );
   }
 
-  // ── LOCKED STATE ──────────────────────────────────────────────────────────
-  if (!record || record.status === "LOCKED") {
+  const wfState = getWorkflowState();
+  const isFinalWindowOpen = wfState.finalWindowOpen || wfState.submissionWindowOpen;
+  const isSubmitted = wfState.projectStatus === "SUBMITTED" || record?.status === "SUBMITTED";
+  const isReopened = wfState.submissionReopened;
+  const isEditingLocked = isSubmitted && !isReopened;
+
+  // ── LOCKED STATE (WHEN ADMIN HAS NOT OPENED FINAL WINDOW) ────────────────
+  if (!isFinalWindowOpen) {
     return (
       <main style={{ minHeight: "100vh", background: "var(--bg-deep)", position: "relative", padding: "0" }}>
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
@@ -161,12 +187,12 @@ export default function ProjectPage() {
           <div style={{ position: "absolute", bottom: "-10%", left: "10%", width: "400px", height: "400px", borderRadius: "50%", background: "radial-gradient(circle,rgba(253,191,21,0.04) 0%,transparent 70%)" }} />
         </div>
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+        <div className="vv-narrow-container" style={{ position: "relative", zIndex: 1 }}>
           <ProjectLockedCard />
 
           <div style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "rgba(255,255,255,0.12)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
-              // DEV TOOLS — SIMULATE FINAL HOURS
+              // ADMIN CONTROL — SIMULATE FINAL WINDOW UNLOCK
             </div>
             <button
               onClick={devToggleWindow}
@@ -183,7 +209,7 @@ export default function ProjectPage() {
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.2)"; e.currentTarget.style.color = "rgba(0,212,255,0.4)"; }}
             >
               <Unlock size={11} />
-              SIMULATE: OPEN SUBMISSION WINDOW (FINAL HOURS)
+              ADMIN SIMULATOR: UNLOCK FINAL PROJECT WINDOW (finalWindowOpen = true)
             </button>
           </div>
         </div>
@@ -191,26 +217,10 @@ export default function ProjectPage() {
     );
   }
 
-  // ── OPEN / DRAFT / SUBMITTED STATES ──────────────────────────────────────
-  const domain = record.data?.domain
-    || (() => {
-      try {
-        const d = localStorage.getItem("vv_domain_selection");
-        if (d) {
-          const { domainId } = JSON.parse(d);
-          const names: Record<string, string> = {
-            "agentic-ai": "AGENTIC AI",
-            "cyber-security": "CYBER SECURITY",
-            "computer-vision": "COMPUTER VISION",
-            "robotics-drones": "ROBOTICS & DRONES",
-            "embedded-cognitive-tech": "EMBEDDED & COGNITIVE TECH",
-            "vlsi-systems": "VLSI SYSTEMS",
-          };
-          return names[domainId] ?? domainId.toUpperCase();
-        }
-      } catch { /* ignore */ }
-      return "";
-    })();
+  // ── UNLOCKED STATE (FINAL WINDOW OPEN) ──────────────────────────────────
+  const domain = record?.data?.domain
+    || wfState.selectedDomainName
+    || "CYBER SECURITY";
 
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg-deep)", position: "relative" }}>
@@ -219,13 +229,13 @@ export default function ProjectPage() {
         <div style={{ position: "absolute", bottom: "-15%", left: "-5%", width: "500px", height: "500px", borderRadius: "50%", background: "radial-gradient(circle,rgba(253,191,21,0.04) 0%,transparent 70%)" }} />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+      <div className="vv-narrow-container" style={{ position: "relative", zIndex: 1 }}>
         <div className="animate-slide-up" style={{ marginBottom: "2rem" }}>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--text-muted)", letterSpacing: "2px", marginBottom: "0.4rem" }}>
-            // PROJECT SUBMISSION
+            // PROJECT SUBMISSION MODULE
           </div>
           <h1 className="text-glow-pink" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 4vw, 2.6rem)", marginBottom: "0.4rem" }}>
-            MISSION DATA
+            PROJECT DETAILS
           </h1>
           <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", letterSpacing: "1px" }}>
             FINAL PROJECT BRIEF · TEAM LEADER PORTAL ·{" "}
@@ -234,27 +244,27 @@ export default function ProjectPage() {
         </div>
 
         <ProjectStatusBanner
-          status={record.status}
-          submittedAt={record.submittedAt}
-          submissionRef={record.submissionRef}
+          status={isSubmitted ? "SUBMITTED" : (record?.status ?? "OPEN")}
+          submittedAt={record?.submittedAt}
+          submissionRef={record?.submissionRef}
         />
 
-        {record.status !== "SUBMITTED" && (
+        {!isSubmitted && (
           <div style={{ padding: "0.75rem 1rem", background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.15)", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.6rem", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "rgba(0,212,255,0.7)", letterSpacing: "1px" }}>
             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 6px var(--cyan)", flexShrink: 0, animation: "status-pulse 2s ease-in-out infinite" }} />
-            FINAL WINDOW OPEN — Project submission is now available. Fill in all fields and submit.
+            FINAL WINDOW OPEN — Fill in project fields (Project Name, Problem Statement, Solution, Description, Stack).
           </div>
         )}
 
-        {flashSubmitted && record.status === "SUBMITTED" && (
-          <SubmittedSuccessBanner ref={record.submissionRef} at={record.submittedAt} />
+        {flashSubmitted && isSubmitted && (
+          <SubmittedSuccessBanner ref={record?.submissionRef} at={record?.submittedAt} />
         )}
 
         <ProjectForm
-          initialData={record.data}
+          initialData={record?.data ?? null}
           domain={domain}
-          adminFields={record.adminFields}
-          currentStatus={record.status}
+          adminFields={record?.adminFields ?? []}
+          currentStatus={isEditingLocked ? "SUBMITTED" : (record?.status ?? "OPEN")}
           onSaveDraft={handleSaveDraft}
           onSubmitProject={handleSubmitProject}
           isSaving={isSaving}
@@ -280,7 +290,7 @@ export default function ProjectPage() {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--pink)"; e.currentTarget.style.color = "var(--pink)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(233,30,140,0.2)"; e.currentTarget.style.color = "rgba(233,30,140,0.4)"; }}
           >
-            🔒 SIMULATE: LOCK SUBMISSION WINDOW
+            🔒 SIMULATE: LOCK SUBMISSION WINDOW (finalWindowOpen = false)
           </button>
         </div>
       </div>

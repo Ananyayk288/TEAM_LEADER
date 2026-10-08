@@ -69,30 +69,31 @@ export default function SpocPage() {
   };
 
   return (
-    <main style={{ paddingBottom: "3rem" }}>
-      {/* Title Header */}
-      <div style={{ marginBottom: "2rem", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "1rem" }}>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--pink)", letterSpacing: "3px", marginBottom: "0.5rem" }}>
-          // SECTION 07: SINGLE POINT OF CONTACT (SPOC)
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-          <div>
-            <h1 className="text-glow-yellow" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem,4vw,2.5rem)", lineHeight: 1.1, marginBottom: "0.5rem" }}>
-              ASSIGNED SPOC & MENTOR DETAILS
-            </h1>
-            <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--text-muted)", margin: 0 }}>
-              Official single point of contact details assigned by Event Administration.
-            </p>
+    <main style={{ paddingBottom: "3rem", minHeight: "100vh", background: "var(--bg-deep)" }}>
+      <div className="vv-main-container">
+        {/* Title Header */}
+        <div style={{ marginBottom: "2rem", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "1rem" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
+            // SINGLE POINT OF CONTACT (SPOC)
           </div>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+            <div>
+              <h1 className="text-glow-yellow" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem,4vw,2.5rem)", lineHeight: 1.1, marginBottom: "0.5rem" }}>
+                SPOC & MENTOR DETAILS
+              </h1>
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "#9AA8C0", margin: 0 }}>
+                Official single point of contact details for your squad.
+              </p>
+            </div>
 
-          <div style={{ padding: "0.5rem 1rem", background: "rgba(253,191,21,0.06)", border: "1px solid var(--border-yellow)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Lock size={14} style={{ color: "var(--primary)" }} />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--primary)", letterSpacing: "1px" }}>
-              READ-ONLY // ASSIGNED BY ADMIN
-            </span>
+            <div style={{ padding: "0.5rem 1rem", background: "rgba(253,191,21,0.06)", border: "1px solid var(--border-yellow)", borderRadius: "4px", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Lock size={14} style={{ color: "var(--primary)" }} />
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--primary)", letterSpacing: "1px" }}>
+                READ-ONLY DETAILS
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Main Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
@@ -306,6 +307,7 @@ export default function SpocPage() {
               <Send size={14} />
             </button>
           </form>
+        </div>
         </div>
       </div>
     </main>

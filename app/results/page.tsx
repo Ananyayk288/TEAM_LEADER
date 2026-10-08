@@ -11,14 +11,36 @@ import {
 } from "lucide-react";
 import {
   getWorkflowState,
+  getAuthenticatedTeamResult,
   type WorkflowState,
+  type TeamResult,
 } from "@/lib/services/workflowService";
 
 export default function ResultsPage() {
   const [state, setState] = useState<WorkflowState | null>(null);
+  const [teamResult, setTeamResult] = useState<TeamResult | null>(null);
 
-  const loadState = () => {
-    setState(getWorkflowState());
+  const loadState = async () => {
+    const s = getWorkflowState();
+    setState(s);
+    try {
+      const res = await fetch("/api/results", { credentials: "same-origin" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.published && data.teamResult) {
+          setTeamResult(data.teamResult);
+          return;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    if (s.resultsPublished) {
+      const res = getAuthenticatedTeamResult(s.teamId);
+      setTeamResult(res);
+    } else {
+      setTeamResult(null);
+    }
   };
 
   useEffect(() => {
@@ -30,26 +52,26 @@ export default function ResultsPage() {
   if (!state) return null;
 
   const isPublished = state.resultsPublished;
-  const result = state.teamResult;
+  const result = teamResult || state.teamResult;
 
   return (
     <main style={{ paddingBottom: "3rem", minHeight: "100vh", background: "var(--bg-deep)" }}>
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+      <div className="vv-narrow-container">
         {/* Page Header */}
         <div style={{ marginBottom: "2rem" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--pink)", letterSpacing: "3px", marginBottom: "0.5rem" }}>
-            // SECTION 09: EVALUATION & RESULTS
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--pink)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
+            // EVALUATION & RESULTS
           </div>
           <h1 className="text-glow-yellow" style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem,4vw,2.8rem)", lineHeight: 1.1, marginBottom: "0.75rem" }}>
             OFFICIAL MISSION RESULTS
           </h1>
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--text-muted)", margin: 0 }}>
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "#9AA8C0", margin: 0 }}>
             Official round scores, standings, and evaluator feedback for squad <span style={{ color: "var(--primary)" }}>{state.teamName}</span>.
           </p>
         </div>
 
         {!isPublished ? (
-          /* LOCKED / UNPUBLISHED STATE */
+          /* UNPUBLISHED STATE */
           <div className="vv-card vv-corners" style={{ padding: "3.5rem 2rem", textAlign: "center", border: "1px solid rgba(253,191,21,0.2)" }}>
             <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(253,191,21,0.08)", border: "1px solid var(--border-yellow)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
               <Lock size={28} style={{ color: "var(--primary)" }} />
@@ -60,7 +82,7 @@ export default function ResultsPage() {
             </div>
 
             <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.6rem", color: "var(--primary)", letterSpacing: "1.5px", marginBottom: "1rem" }}>
-              RESULTS CLASSIFIED & LOCKED
+              RESULTS NOT PUBLISHED YET
             </div>
 
             <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-dim)", maxWidth: "520px", margin: "0 auto 2rem", lineHeight: 1.7 }}>
@@ -80,11 +102,11 @@ export default function ResultsPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
                 <CheckCircle size={20} style={{ color: "#00ff88" }} />
                 <span style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", color: "#00ff88", letterSpacing: "1.5px" }}>
-                  RESULTS PUBLISHED — OWN SQUAD PERFORMANCE
+                  RESULTS PUBLISHED — SQUAD PERFORMANCE
                 </span>
               </div>
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-dim)", margin: 0 }}>
-                Showing confidential evaluation data for squad <strong style={{ color: "var(--primary)" }}>{state.teamName} ({state.teamId})</strong>.
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--cyan)", marginTop: "0.2rem" }}>
+                {result?.evaluationRound || "ROUND 01 · FINAL EVALUATION DECK"} &nbsp;|&nbsp; OUTCOME: <strong style={{ color: "#00ff88" }}>{result?.evaluationOutcome || "QUALIFIED"}</strong>
               </p>
             </div>
 
@@ -143,7 +165,7 @@ export default function ResultsPage() {
               {/* Evaluator Remarks */}
               <div style={{ padding: "1.25rem", background: "rgba(253,191,21,0.03)", border: "1px solid rgba(253,191,21,0.18)" }}>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--primary)", letterSpacing: "1.5px", marginBottom: "0.5rem" }}>
-                  EVALUATOR / JUDGE REMARKS
+                  RELEASED JUDGE / EVALUATOR REMARKS
                 </div>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: "0.88rem", color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}>
                   "{result?.feedback || "Exceptional architecture with robust real-time security telemetry. Great presentation clarity."}"

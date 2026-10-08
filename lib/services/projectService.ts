@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getDomainById } from "./domainService";
+import { updateWorkflowState } from "./workflowService";
 
 // ─── STATUS MODEL ─────────────────────────────────────────────────────────────
 
@@ -120,16 +121,21 @@ export async function getProjectRecord(): Promise<ProjectRecord> {
 }
 
 export async function saveProjectDraft(data: ProjectData): Promise<ProjectSaveResult> {
+  const statusStore = readLS<{ status: ProjectStatus; ref?: string; submittedAt?: string }>(PROJECT_STATUS_KEY);
   writeLS(PROJECT_DATA_KEY, data);
-  writeLS(PROJECT_STATUS_KEY, { status: "DRAFT" as ProjectStatus });
+  if (statusStore?.status !== "SUBMITTED") {
+    writeLS(PROJECT_STATUS_KEY, { status: "DRAFT" as ProjectStatus });
+  }
   return { success: true, message: "DRAFT SAVED" };
 }
 
 export async function submitProject(data: ProjectData): Promise<ProjectSaveResult> {
-  const ref = "PRJ-" + Math.random().toString(36).substring(2, 9).toUpperCase();
-  const now = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+  const statusStore = readLS<{ status: ProjectStatus; ref?: string; submittedAt?: string }>(PROJECT_STATUS_KEY);
+  const ref = statusStore?.ref || ("PRJ-" + Math.random().toString(36).substring(2, 9).toUpperCase());
+  const now = statusStore?.submittedAt || new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
   writeLS(PROJECT_DATA_KEY, data);
   writeLS(PROJECT_STATUS_KEY, { status: "SUBMITTED" as ProjectStatus, ref, submittedAt: now });
+  updateWorkflowState((prev) => ({ ...prev, projectStatus: "SUBMITTED" }));
   return { success: true, message: "PROJECT SUBMITTED", ref };
 }
 

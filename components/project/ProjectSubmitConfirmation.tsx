@@ -3,10 +3,11 @@ import React, { useEffect, useRef } from "react";
 import { AlertTriangle, CheckCircle, X } from "lucide-react";
 
 interface ProjectSubmitConfirmationProps {
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
   isSubmitting: boolean;
   projectName: string;
+  errorMessage?: string | null;
 }
 
 export default function ProjectSubmitConfirmation({
@@ -14,6 +15,7 @@ export default function ProjectSubmitConfirmation({
   onCancel,
   isSubmitting,
   projectName,
+  errorMessage,
 }: ProjectSubmitConfirmationProps) {
   // Trap focus and handle Escape key
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -34,7 +36,7 @@ export default function ProjectSubmitConfirmation({
         position: "fixed",
         inset: 0,
         zIndex: 100,
-        background: "rgba(0,0,0,0.82)",
+        background: "rgba(0,0,0,0.85)",
         backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
@@ -42,19 +44,24 @@ export default function ProjectSubmitConfirmation({
         padding: "1rem",
         animation: "vv-fade-in 0.2s ease both",
       }}
-      onClick={(e) => { if (e.target === e.currentTarget && !isSubmitting) onCancel(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) onCancel();
+      }}
     >
-      {/* Modal card */}
+      {/* Modal Card */}
       <div
         className="vv-card vv-corners"
         style={{
           width: "100%",
           maxWidth: "480px",
-          padding: "2.5rem 2rem",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          padding: "clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2rem)",
           background: "#0F0F0F",
-          border: "1px solid rgba(233,30,140,0.3)",
+          border: "1px solid rgba(233,30,140,0.35)",
           animation: "vv-slide-up 0.3s cubic-bezier(0.16,1,0.3,1) both",
           position: "relative",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.9), 0 0 30px rgba(233,30,140,0.15)",
         }}
       >
         {/* Close button */}
@@ -70,19 +77,22 @@ export default function ProjectSubmitConfirmation({
               border: "none",
               color: "var(--text-muted)",
               cursor: "pointer",
-              padding: "0.25rem",
+              padding: "0.35rem",
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
+              minHeight: "36px",
+              minWidth: "36px",
               transition: "color 0.2s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-main)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         )}
 
-        {/* Warning icon */}
+        {/* Warning Icon */}
         <div
           style={{
             display: "flex",
@@ -93,7 +103,7 @@ export default function ProjectSubmitConfirmation({
             borderRadius: "50%",
             background: "rgba(233,30,140,0.08)",
             border: "1px solid rgba(233,30,140,0.25)",
-            margin: "0 auto 1.5rem",
+            margin: "0 auto 1.25rem",
           }}
         >
           <AlertTriangle size={24} style={{ color: "var(--pink)" }} />
@@ -103,7 +113,7 @@ export default function ProjectSubmitConfirmation({
         <div
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: "0.55rem",
+            fontSize: "0.6rem",
             color: "var(--text-muted)",
             letterSpacing: "3px",
             textAlign: "center",
@@ -115,7 +125,7 @@ export default function ProjectSubmitConfirmation({
         <h2
           style={{
             fontFamily: "var(--font-heading)",
-            fontSize: "1.3rem",
+            fontSize: "1.35rem",
             color: "var(--pink)",
             textAlign: "center",
             marginBottom: "1rem",
@@ -125,7 +135,25 @@ export default function ProjectSubmitConfirmation({
           SUBMIT PROJECT?
         </h2>
 
-        {/* Project name */}
+        {/* Error Banner inside modal if submission fails */}
+        {errorMessage && (
+          <div
+            style={{
+              padding: "0.75rem 1rem",
+              background: "rgba(230,16,80,0.15)",
+              border: "1px solid rgba(230,16,80,0.6)",
+              borderRadius: "4px",
+              marginBottom: "1.25rem",
+              textAlign: "center",
+            }}
+          >
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#FF4D4D", letterSpacing: "0.5px" }}>
+              ⚠ {errorMessage}
+            </span>
+          </div>
+        )}
+
+        {/* Project Name Card */}
         <div
           style={{
             padding: "0.75rem 1rem",
@@ -138,13 +166,13 @@ export default function ProjectSubmitConfirmation({
           <div
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.5rem",
+              fontSize: "0.55rem",
               color: "var(--text-muted)",
               letterSpacing: "1px",
               marginBottom: "0.25rem",
             }}
           >
-            PROJECT
+            PROJECT TITLE
           </div>
           <div
             style={{
@@ -152,30 +180,30 @@ export default function ProjectSubmitConfirmation({
               fontSize: "1rem",
               color: "var(--primary)",
               letterSpacing: "1px",
+              wordBreak: "break-all",
             }}
           >
             {projectName || "UNNAMED PROJECT"}
           </div>
         </div>
 
-        {/* Warning message */}
+        {/* Requirement 8: Updated warning message */}
         <p
           style={{
             fontFamily: "var(--font-body)",
-            fontSize: "0.82rem",
-            color: "rgba(255,255,255,0.45)",
-            lineHeight: 1.7,
+            fontSize: "0.85rem",
+            color: "#C5CEDF",
+            lineHeight: 1.6,
             textAlign: "center",
-            marginBottom: "2rem",
+            marginBottom: "1.75rem",
           }}
         >
-          Are you sure you want to submit your project? Once submitted,
-          editing may be restricted by the Event Admin.
+          Once submitted, your project will be locked. Only the Event Admin can reopen it.
         </p>
 
-        {/* Action buttons */}
+        {/* Action Buttons */}
         <div style={{ display: "flex", gap: "0.75rem", flexDirection: "column" }}>
-          {/* Confirm submit */}
+          {/* Confirm Submit Button */}
           <button
             onClick={onConfirm}
             disabled={isSubmitting}
@@ -186,68 +214,70 @@ export default function ProjectSubmitConfirmation({
               justifyContent: "center",
               gap: "0.6rem",
               width: "100%",
-              padding: "1rem",
+              minHeight: "46px",
+              padding: "0.9rem",
               background: isSubmitting ? "rgba(233,30,140,0.4)" : "var(--pink)",
               color: "#fff",
               fontFamily: "var(--font-heading)",
-              fontSize: "1rem",
+              fontSize: "0.95rem",
               letterSpacing: "2px",
               border: "none",
+              borderRadius: "4px",
               cursor: isSubmitting ? "not-allowed" : "pointer",
               transition: "all 0.2s",
               textTransform: "uppercase",
-            }}
-            onMouseEnter={(e) => {
-              if (!isSubmitting) e.currentTarget.style.background = "#c2176e";
-            }}
-            onMouseLeave={(e) => {
-              if (!isSubmitting) e.currentTarget.style.background = "var(--pink)";
+              boxShadow: isSubmitting ? "none" : "0 0 16px rgba(255,15,90,0.3)",
             }}
           >
             {isSubmitting ? (
               <>
                 <div className="vv-spinner" style={{ width: "16px", height: "16px", borderTopColor: "#fff" }} />
-                TRANSMITTING...
+                <span>SUBMITTING...</span>
               </>
             ) : (
               <>
                 <CheckCircle size={16} />
-                CONFIRM SUBMISSION
+                <span>CONFIRM SUBMISSION</span>
               </>
             )}
           </button>
 
-          {/* Cancel */}
-          {!isSubmitting && (
-            <button
-              ref={cancelRef}
-              onClick={onCancel}
-              id="project-submit-cancel-btn"
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "var(--text-dim)",
-                fontFamily: "var(--font-heading)",
-                fontSize: "0.8rem",
-                letterSpacing: "1px",
-                cursor: "pointer",
-                transition: "all 0.2s",
-                textTransform: "uppercase",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
+          {/* Cancel Button */}
+          <button
+            ref={cancelRef}
+            onClick={onCancel}
+            disabled={isSubmitting}
+            id="project-submit-cancel-btn"
+            style={{
+              width: "100%",
+              minHeight: "42px",
+              padding: "0.75rem",
+              background: "transparent",
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderRadius: "4px",
+              color: isSubmitting ? "rgba(255,255,255,0.2)" : "var(--text-dim)",
+              fontFamily: "var(--font-heading)",
+              fontSize: "0.8rem",
+              letterSpacing: "1px",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              transition: "all 0.2s",
+              textTransform: "uppercase",
+            }}
+            onMouseEnter={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
                 e.currentTarget.style.color = "var(--text-main)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
                 e.currentTarget.style.color = "var(--text-dim)";
-              }}
-            >
-              CANCEL — GO BACK
-            </button>
-          )}
+              }
+            }}
+          >
+            CANCEL — GO BACK
+          </button>
         </div>
       </div>
     </div>

@@ -10,9 +10,11 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["Pricedown Bl", "sans-serif"],
-        body: ["Inter", "ui-sans-serif", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        ui: ["Inter", "system-ui", "sans-serif"],
+        script: ["Mr Dafoe", "cursive"],
+        heading: ["Inter", "system-ui", "sans-serif"],
+        body: ["Inter", "system-ui", "sans-serif"],
+        mono: ["Inter", "monospace"],
       },
     },
   },

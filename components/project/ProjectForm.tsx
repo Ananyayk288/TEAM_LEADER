@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Save,
   Send,
@@ -17,6 +18,7 @@ import {
 import type { ProjectData, AdminField, ProjectStatus } from "@/lib/services/projectService";
 import { validateProjectForm } from "@/lib/validations/project";
 import ProjectSubmitConfirmation from "./ProjectSubmitConfirmation";
+import { useToast } from "@/components/ui/Toast";
 
 interface ProjectFormProps {
   initialData: ProjectData | null;
@@ -64,12 +66,13 @@ function SectionHeader({ code, title, subtitle }: { code: string; title: string;
         <span
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: "0.58rem",
+            fontSize: "0.75rem",
             color: "var(--primary)",
             background: "rgba(253,191,21,0.08)",
             border: "1px solid rgba(253,191,21,0.25)",
             padding: "0.2rem 0.5rem",
             letterSpacing: "1px",
+            whiteSpace: "nowrap",
           }}
         >
           {code}
@@ -245,6 +248,7 @@ export default function ProjectForm({
   isSubmittingFinal,
   draftSaved,
 }: ProjectFormProps) {
+  const router = useRouter();
   const isSubmitted = currentStatus === "SUBMITTED";
 
   // Form State
@@ -266,6 +270,7 @@ export default function ProjectForm({
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [modalError, setModalError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const buildData = useCallback((): ProjectData => ({
@@ -296,24 +301,38 @@ export default function ProjectForm({
     adminValues,
   ]);
 
+  const { showToast } = useToast();
+
   const handleSaveDraft = async () => {
     setErrors({});
     await onSaveDraft(buildData());
+    showToast("Project draft saved successfully ✓", "success");
   };
 
   const handleOpenConfirm = () => {
     const { valid, errors: errs } = validateProjectForm(buildData());
     if (!valid) {
       setErrors(errs);
+      showToast("Please fix the validation errors before submitting.", "error");
       return;
     }
     setErrors({});
+    setModalError(null);
     setShowConfirm(true);
   };
 
   const handleFinalSubmit = async () => {
-    await onSubmitProject(buildData());
-    setShowConfirm(false);
+    setModalError(null);
+    try {
+      await onSubmitProject(buildData());
+      showToast("Project submitted successfully! ✓", "success");
+      setShowConfirm(false);
+      router.replace("/dashboard");
+    } catch (err: any) {
+      const msg = err?.message || "Submission failed. Please try again.";
+      setModalError(msg);
+      showToast(msg, "error");
+    }
   };
 
   return (
@@ -384,13 +403,13 @@ export default function ProjectForm({
             style={{
               display: "block",
               fontFamily: "var(--font-mono)",
-              fontSize: "0.62rem",
+              fontSize: "0.75rem",
               color: "var(--text-main)",
               letterSpacing: "1.5px",
               marginBottom: "0.45rem",
             }}
           >
-            SELECTED DOMAIN <span style={{ color: "var(--cyan)" }}>(ASSIGNED)</span>
+            SELECTED DOMAIN
           </label>
           <div
             style={{
@@ -715,6 +734,7 @@ export default function ProjectForm({
         <ProjectSubmitConfirmation
           projectName={projectName}
           isSubmitting={isSubmittingFinal}
+          errorMessage={modalError}
           onConfirm={handleFinalSubmit}
           onCancel={() => setShowConfirm(false)}
         />

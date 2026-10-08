@@ -15,51 +15,73 @@ interface PortalState {
   isAuthenticated: boolean;
   authUser: AuthUser | null;
   isHydrated: boolean;
-  login: (user: AuthUser) => void;
-  logout: () => void;
-  resetPortalState: () => void;
+  loginUser: (user: AuthUser) => void;
+  logout: () => Promise<void>;
+  resetPortalState: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
 }
 
 const PortalContext = createContext<PortalState | null>(null);
-const STORAGE_KEY = "vv_portal_auth";
 
 export function PortalProvider({ children }: { children: React.ReactNode }) {
-  // Synchronous client initialization from localStorage to prevent startup hydration lag
-  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [isHydrated, setIsHydrated] = useState<boolean>(false);
+
+  // Check server HTTP-only session cookie on mount
+  const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as AuthUser) : null;
+      const res = await fetch("/api/auth/session", { credentials: "same-origin" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          setAuthUser({
+            id: data.user.teamId,
+            email: data.user.email,
+            role: data.user.role,
+            teamName: data.user.teamName,
+          });
+          setIsHydrated(true);
+          return true;
+        }
+      }
     } catch {
-      return null;
+      /* ignore */
     }
-  });
-
-  const [isHydrated, setIsHydrated] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (!isHydrated) setIsHydrated(true);
-  }, [isHydrated]);
-
-  const login = useCallback((user: AuthUser) => {
-    setAuthUser(user);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(user)); } catch { /* ignore */ }
+    setAuthUser(null);
+    setIsHydrated(true);
+    return false;
   }, []);
 
-  const logout = useCallback(() => {
+  useEffect(() => {
+    refreshSession();
+  }, [refreshSession]);
+
+  const loginUser = useCallback((user: AuthUser) => {
+    setAuthUser(user);
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch {
+      /* ignore */
+    }
     setAuthUser(null);
-    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    window.location.href = "/login";
   }, []);
 
   return (
-    <PortalContext.Provider value={{
-      isAuthenticated: !!authUser,
-      authUser,
-      isHydrated: true,
-      login,
-      logout,
-      resetPortalState: logout,
-    }}>
+    <PortalContext.Provider
+      value={{
+        isAuthenticated: !!authUser,
+        authUser,
+        isHydrated,
+        loginUser,
+        logout,
+        resetPortalState: logout,
+        refreshSession,
+      }}
+    >
       {children}
     </PortalContext.Provider>
   );

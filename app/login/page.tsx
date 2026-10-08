@@ -3,13 +3,15 @@ import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePortal } from "@/context/PortalContext";
-import { Eye, EyeOff, ShieldCheck, KeyRound, Mail } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Mail, HelpCircle } from "lucide-react";
 import { getWorkflowState } from "@/lib/services/workflowService";
+import { useToast } from "@/components/ui/Toast";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = usePortal();
+  const { loginUser } = usePortal();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [teamUniqueId, setTeamUniqueId] = useState("");
@@ -30,141 +32,161 @@ function LoginForm() {
     const cleanEmail = email.trim();
     const cleanId = teamUniqueId.trim();
 
-    // Basic format checks
     if (!cleanEmail || !cleanId) {
-      setError("Invalid Email ID or Team Unique ID.");
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      setError("Invalid Email ID or Team Unique ID.");
-      return;
-    }
-
-    if (cleanId.length < 4) {
-      setError("Invalid Email ID or Team Unique ID.");
+      const msg = "Invalid email or ID.";
+      setError(msg);
+      showToast(msg, "error");
       return;
     }
 
     setIsLoading(true);
 
-    // Fast login transition
-    await new Promise((r) => setTimeout(r, 100));
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleanEmail, teamUniqueId: cleanId }),
+        credentials: "same-origin",
+      });
 
-    const wf = getWorkflowState();
-    const mockTeamName = wf.teamName || "SHADOW NINE";
+      const data = await res.json();
 
-    // Authenticate and set session
-    login({
-      id: cleanId.toUpperCase(),
-      email: cleanEmail,
-      role: "TEAM_LEADER",
-      teamName: mockTeamName,
-    });
+      if (!res.ok || !data.success) {
+        const errorMsg = data.error || "Invalid email or ID.";
+        setError(errorMsg);
+        showToast(errorMsg, "error");
+        setIsLoading(false);
+        return;
+      }
 
-    setSuccess(true);
-    await new Promise((r) => setTimeout(r, 100));
-    router.replace("/dashboard");
+      loginUser({
+        id: data.user.teamId,
+        email: data.user.email,
+        role: data.user.role,
+        teamName: data.user.teamName,
+      });
+
+      setSuccess(true);
+      showToast("✓ Authenticated — Redirecting to Dashboard...", "success");
+      await new Promise((r) => setTimeout(r, 150));
+      router.replace("/dashboard");
+    } catch {
+      const genericMsg = "Invalid email or ID.";
+      setError(genericMsg);
+      showToast(genericMsg, "error");
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", background: "var(--bg-deep)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-      {/* CINEMATIC BACKGROUND */}
+    <div style={{ minHeight: "100dvh", width: "100%", background: "var(--bg-deep)", display: "flex", flexDirection: "column", position: "relative", overflowX: "hidden" }}>
+      {/* CINEMATIC BACKGROUND WITH DIM & BLUR */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden" }}>
-        <div className={mounted ? "animate-pan-bg" : ""} style={{ position: "absolute", top: "-5%", left: "-5%", width: "110%", height: "110%" }}>
+        <div 
+          className={mounted ? "animate-pan-bg" : ""} 
+          style={{ 
+            position: "absolute", 
+            top: "-5%", 
+            left: "-5%", 
+            width: "110%", 
+            height: "110%",
+            filter: "brightness(0.55) blur(3px)" 
+          }}
+        >
           <Image src="/login_bg.jpg" alt="ViceVerse City" fill style={{ objectFit: "cover", objectPosition: "center" }} priority />
         </div>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(7,11,20,0.7) 0%, rgba(7,11,20,0.85) 45%, rgba(7,11,20,0.98) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(7,11,20,0.4) 0%, transparent 20%, transparent 80%, rgba(7,11,20,0.7) 100%)" }} />
-        <div className="animate-glow" style={{ position: "absolute", top: "15%", left: "10%", width: "450px", height: "450px", background: "radial-gradient(circle, rgba(230,16,80,0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "15%", left: "35%", width: "350px", height: "250px", background: "radial-gradient(circle, rgba(56,225,232,0.1) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(50px)", pointerEvents: "none" }} />
+        {/* DARK GRADIENT OVERLAY */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(7,11,20,0.85) 0%, rgba(7,11,20,0.75) 50%, rgba(7,11,20,0.92) 100%)" }} />
+        {/* SOFT AMBIENT GLOW ORBS */}
+        <div className="animate-glow" style={{ position: "absolute", top: "20%", left: "20%", width: "min(400px, 80vw)", height: "min(400px, 80vw)", background: "radial-gradient(circle, rgba(230,16,80,0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "20%", right: "20%", width: "min(400px, 80vw)", height: "min(300px, 60vw)", background: "radial-gradient(circle, rgba(56,225,232,0.12) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
       </div>
 
-      {/* TOP BAR */}
-      <header style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid var(--border-blue)", background: "rgba(7,11,20,0.7)", backdropFilter: "blur(10px)" }}>
+      {/* TOP BAR WITH ENLARGED LOGOS IN OPPOSITE CORNERS */}
+      <header style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "clamp(0.6rem, 1.5vw, 0.85rem) clamp(0.85rem, 3vw, 2rem)", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(7,11,20,0.8)", backdropFilter: "blur(12px)", flexShrink: 0, width: "100%" }}>
+        
+        {/* TOP LEFT: IVC LOGO & BADGE */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          <Image src="/ivc_logo.png" alt="IVC Club" width={40} height={40} style={{ objectFit: "contain" }} />
+          <Image src="/ivc_logo.png" alt="IVC Club" width={48} height={48} priority style={{ objectFit: "contain", height: "clamp(38px, 6vw, 54px)", width: "auto" }} />
           <div>
-            <div style={{ fontFamily: "var(--font-heading)", fontSize: "0.7rem", color: "var(--primary)", letterSpacing: "2px" }}>IVC CLUB</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "var(--text-muted)", letterSpacing: "1px" }}>VVCE MYSURU</div>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(0.75rem, 2vw, 0.9rem)", fontWeight: 700, color: "var(--primary)", letterSpacing: "1.5px" }}>IVC CLUB</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "clamp(0.6rem, 1.5vw, 0.7rem)", color: "#8FA0BA", letterSpacing: "1px" }}>VVCE MYSURU</div>
           </div>
         </div>
-        <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "0.5rem" }}>
-          <Image src="/viceverse_logo.png" alt="ViceVerse Ideathon" width={90} height={90} style={{ objectFit: "contain" }} />
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 8px var(--cyan)" }} />
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", letterSpacing: "2px" }}>PORTAL ONLINE</span>
+
+        {/* TOP RIGHT: VICEVERSE LOGO */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image 
+            src="/viceverse_logo.png" 
+            alt="ViceVerse Ideathon" 
+            width={140} 
+            height={58} 
+            priority
+            style={{ 
+              objectFit: "contain",
+              height: "clamp(42px, 8vw, 62px)",
+              width: "auto",
+              filter: "drop-shadow(0 0 16px rgba(230,16,80,0.5)) drop-shadow(0 0 30px rgba(230,16,80,0.25))"
+            }} 
+          />
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
-      <div style={{ flex: 1, position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", padding: "1.5rem 1rem", gap: "2rem" }}>
+      {/* MAIN CONTENT AREA — RESPONSIVE CENTERED COLUMN */}
+      <main style={{ flex: 1, position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem clamp(0.75rem, 3vw, 1.5rem)", width: "100%", gap: "0.85rem", overflowY: "auto" }}>
 
-        {/* LEFT — Cinematic Title Panel */}
-        <div className={mounted ? "animate-fade-in" : ""} style={{ flex: "1 1 320px", display: "flex", flexDirection: "column", justifyContent: "center", padding: "1rem", maxWidth: "560px", width: "100%" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)", letterSpacing: "4px", marginBottom: "1.25rem" }}>
-            // AUTHORIZED TEAM LEADER ACCESS
-          </div>
-          <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(2.2rem,5vw,5.5rem)", lineHeight: 0.9, color: "var(--text-main)", marginBottom: "0.75rem" }} className="text-glow-yellow">
-            VICEVERSE<br />
-            <span style={{ color: "var(--primary)" }}>TEAM LEADER</span><br />
-            PORTAL
-          </h1>
-          <div style={{ width: "70px", height: "3px", background: "var(--pink)", margin: "1.25rem 0", boxShadow: "0 0 10px var(--pink)" }} />
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "var(--text-dim)", lineHeight: 1.65, maxWidth: "400px", marginBottom: "2rem" }}>
-            Pre-registered Team Leader authentication portal. Sign in using your registered Email ID and unique Team Unique ID.
-          </p>
-          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-            {[{ label: "PORTAL STATUS", value: "AUTHORIZED ACCESS", color: "var(--cyan)" }, { label: "EVENT SECTOR", value: "VVCE-09", color: "var(--primary)" }].map((s) => (
-              <div key={s.label}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", letterSpacing: "2px", marginBottom: "0.2rem" }}>{s.label}</div>
-                <div style={{ fontFamily: "var(--font-heading)", fontSize: "1rem", color: s.color }}>{s.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* RIGHT — Login Panel */}
-        <div style={{ width: "100%", maxWidth: "430px", flex: "1 1 320px", display: "flex", flexDirection: "column" }}>
+        {/* CENTERED LOGIN CARD */}
+        <div style={{ width: "100%", maxWidth: "460px", display: "flex", flexDirection: "column" }}>
           {wasDenied && (
-            <div className={mounted ? "animate-slide-up" : ""} style={{ padding: "0.65rem 1rem", background: "rgba(230,16,80,0.1)", border: "1px solid var(--primary)", marginBottom: "0.75rem", borderRadius: "4px" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--pink)", letterSpacing: "2px" }}>WARNING — TEAM LEADER SESSION REQUIRED</span>
+            <div className={mounted ? "animate-slide-up" : ""} style={{ padding: "0.6rem 1rem", background: "rgba(230,16,80,0.12)", border: "1px solid var(--primary)", marginBottom: "0.75rem", borderRadius: "6px" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", fontWeight: 600, color: "var(--pink)", letterSpacing: "1.5px" }}>WARNING — TEAM LEADER SESSION REQUIRED</span>
             </div>
           )}
 
-          <div className={`vv-card vv-corners ${mounted ? "animate-slide-up" : ""}`} style={{ padding: "2rem 2rem 1.75rem", boxShadow: "0 20px 60px rgba(0,0,0,0.85)", backdropFilter: "blur(14px)", background: "var(--bg-card)", border: "1px solid var(--border-blue)" }}>
+          <div 
+            className={`vv-card vv-corners ${mounted ? "animate-slide-up" : ""}`} 
+            style={{ 
+              padding: "clamp(1.2rem, 4vw, 1.6rem) clamp(1.1rem, 4vw, 1.85rem)", 
+              boxShadow: "0 20px 50px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(255,255,255,0.05), 0 0 35px rgba(230,16,80,0.12)", 
+              backdropFilter: "blur(16px)", 
+              background: "rgba(12, 18, 32, 0.85)", 
+              border: "1px solid rgba(255,255,255,0.1)",
+              width: "100%" 
+            }}
+          >
 
-            {/* Header */}
-            <div style={{ marginBottom: "1.75rem" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--pink)", letterSpacing: "3px", marginBottom: "0.6rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <span style={{ display: "inline-block", width: "12px", height: "1px", background: "var(--pink)" }} />
+            {/* Card Header */}
+            <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", fontWeight: 600, color: "#FF0F5A", letterSpacing: "3px", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ display: "inline-block", width: "14px", height: "1px", background: "#FF0F5A" }} />
                 AUTHORIZED ACCESS
-                <span style={{ display: "inline-block", width: "12px", height: "1px", background: "var(--pink)" }} />
+                <span style={{ display: "inline-block", width: "14px", height: "1px", background: "#FF0F5A" }} />
               </div>
-              <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "1.8rem", color: "#FFFFFF", lineHeight: 1, marginBottom: "0.35rem" }}>
-                TEAM LEADER<br /><span style={{ color: "var(--primary)" }}>LOGIN</span>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.35rem, 4vw, 1.7rem)", color: "#FFFFFF", lineHeight: 1.1, marginBottom: "0.3rem" }}>
+                TEAM LEADER <span style={{ color: "var(--primary)" }}>LOGIN</span>
               </h2>
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-muted)", letterSpacing: "1px" }}>
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "#8FA0BA", letterSpacing: "1px" }}>
                 ENTER REGISTERED EMAIL & TEAM UNIQUE ID
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {/* CLEAR RED ERROR BOX */}
               {error && (
-                <div style={{ padding: "0.7rem 0.85rem", background: "rgba(233,30,140,0.1)", border: "1px solid rgba(233,30,140,0.5)" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--pink)", letterSpacing: "0.5px" }}>⚠ {error}</span>
+                <div style={{ padding: "0.6rem 0.85rem", background: "rgba(230,16,80,0.12)", border: "1px solid rgba(230,16,80,0.6)", borderRadius: "4px" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "#FF4D4D", letterSpacing: "0.5px" }}>⚠ {error}</span>
                 </div>
               )}
+              {/* SUCCESS NOTIFICATION */}
               {success && (
-                <div style={{ padding: "0.7rem 0.85rem", background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.5)" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "#00ff88", letterSpacing: "1px" }}>✓ AUTHENTICATED — REDIRECTING TO DASHBOARD...</span>
+                <div style={{ padding: "0.6rem 0.85rem", background: "rgba(0,255,136,0.12)", border: "1px solid rgba(0,255,136,0.6)", borderRadius: "4px" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", fontWeight: 600, color: "#00FF88", letterSpacing: "1px" }}>✓ AUTHENTICATED — REDIRECTING...</span>
                 </div>
               )}
 
               {/* EMAIL ID FIELD */}
               <div>
-                <label htmlFor="login-email" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", letterSpacing: "2px", marginBottom: "0.45rem", textTransform: "uppercase" }}>
+                <label htmlFor="login-email" style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.7rem", fontWeight: 600, color: "var(--primary)", letterSpacing: "2px", marginBottom: "0.35rem", textTransform: "uppercase" }}>
                   EMAIL ID
                 </label>
                 <div style={{ position: "relative" }}>
@@ -177,16 +199,24 @@ function LoginForm() {
                     onChange={(e) => { setEmail(e.target.value); setError(null); }}
                     autoComplete="email"
                     disabled={isLoading || success}
-                    style={{ paddingLeft: "2.4rem" }}
+                    style={{ 
+                      height: "46px", 
+                      background: "#0E1626", 
+                      border: "1px solid rgba(255,255,255,0.14)", 
+                      color: "#FFFFFF", 
+                      paddingLeft: "2.5rem",
+                      borderRadius: "4px",
+                      fontSize: "0.9rem" 
+                    }}
                   />
-                  <Mail size={15} style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+                  <Mail size={15} style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", color: "#8FA0BA" }} />
                 </div>
               </div>
 
               {/* TEAM UNIQUE ID FIELD */}
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.45rem" }}>
-                  <label htmlFor="login-team-id" style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", letterSpacing: "2px", textTransform: "uppercase" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.35rem" }}>
+                  <label htmlFor="login-team-id" style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", fontWeight: 600, color: "var(--primary)", letterSpacing: "2px", textTransform: "uppercase" }}>
                     TEAM UNIQUE ID
                   </label>
                 </div>
@@ -200,76 +230,149 @@ function LoginForm() {
                     onChange={(e) => { setTeamUniqueId(e.target.value); setError(null); }}
                     autoComplete="current-password"
                     disabled={isLoading || success}
-                    style={{ paddingLeft: "2.4rem", paddingRight: "2.75rem" }}
+                    style={{ 
+                      height: "46px", 
+                      background: "#0E1626", 
+                      border: "1px solid rgba(255,255,255,0.14)", 
+                      color: "#FFFFFF", 
+                      paddingLeft: "2.5rem", 
+                      paddingRight: "2.6rem",
+                      borderRadius: "4px",
+                      fontSize: "0.9rem" 
+                    }}
                   />
-                  <KeyRound size={15} style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+                  <KeyRound size={15} style={{ position: "absolute", left: "0.85rem", top: "50%", transform: "translateY(-50%)", color: "#8FA0BA" }} />
                   <button
                     type="button"
                     onClick={() => setShowId((p) => !p)}
-                    style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", transition: "color 0.2s" }}
+                    style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#8FA0BA", display: "flex", transition: "color 0.2s", minHeight: "36px", alignItems: "center" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--cyan)"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#8FA0BA"; }}
                   >
                     {showId ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--text-muted)", marginTop: "0.35rem", letterSpacing: "0.5px" }}>
+                {/* HELPER TEXT */}
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "#8FA0BA", marginTop: "0.3rem", letterSpacing: "0.5px" }}>
                   Enter the unique Team ID provided to your team.
                 </div>
               </div>
 
-              {/* Remember */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div onClick={() => setRemember((r) => !r)} style={{ width: "15px", height: "15px", border: `1px solid ${remember ? "var(--primary)" : "var(--border-yellow)"}`, background: remember ? "var(--primary)" : "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", flexShrink: 0 }}>
-                  {remember && <span style={{ color: "#000", fontSize: "9px", fontWeight: "bold", lineHeight: 1 }}>✓</span>}
+              {/* REMEMBER SESSION CHECKBOX */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", minHeight: "36px" }}>
+                <div 
+                  onClick={() => setRemember((r) => !r)} 
+                  style={{ 
+                    width: "18px", 
+                    height: "18px", 
+                    border: `1px solid ${remember ? "var(--primary)" : "rgba(255,255,255,0.25)"}`, 
+                    background: remember ? "var(--primary)" : "#0E1626", 
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    transition: "all 0.2s", 
+                    borderRadius: "3px",
+                    flexShrink: 0 
+                  }}
+                >
+                  {remember && <span style={{ color: "#000", fontSize: "10px", fontWeight: "bold", lineHeight: 1 }}>✓</span>}
                 </div>
-                <span onClick={() => setRemember((r) => !r)} style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--text-muted)", letterSpacing: "1px", textTransform: "uppercase", cursor: "pointer" }}>REMEMBER TEAM SESSION</span>
+                <span onClick={() => setRemember((r) => !r)} style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "#B8C2D6", letterSpacing: "1px", textTransform: "uppercase", cursor: "pointer", userSelect: "none" }}>
+                  REMEMBER TEAM SESSION
+                </span>
               </div>
 
-              {/* Loading bar */}
+              {/* LOADING BAR */}
               {isLoading && (
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--cyan)", letterSpacing: "2px" }}>AUTHENTICATING TEAM CREDENTIALS...</span>
-                    <span className="animate-terminal-blink" style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--primary)" }}>■</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)", letterSpacing: "1.5px" }}>AUTHENTICATING TEAM CREDENTIALS...</span>
+                    <span className="animate-terminal-blink" style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--primary)" }}>■</span>
                   </div>
-                  <div style={{ height: "2px", width: "100%", background: "rgba(253,191,21,0.1)", overflow: "hidden" }}>
+                  <div style={{ height: "3px", width: "100%", background: "rgba(230,16,80,0.15)", overflow: "hidden", borderRadius: "2px" }}>
                     <div className="animate-auth-bar" style={{ height: "100%", background: "linear-gradient(to right, var(--pink), var(--cyan))" }} />
                   </div>
                 </div>
               )}
 
-              {/* Submit */}
-              <button id="login-submit" type="submit" className="vv-button" disabled={isLoading || success} style={{ marginTop: "0.4rem" }}>
+              {/* LOGIN SUBMIT BUTTON */}
+              <button 
+                id="login-submit" 
+                type="submit" 
+                className="vv-button" 
+                disabled={isLoading || success} 
+                style={{ 
+                  height: "48px", 
+                  background: success ? "#00FF88" : "linear-gradient(135deg, #E61050 0%, #C00A3C 100%)",
+                  color: success ? "#000000" : "#FFFFFF",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  letterSpacing: "2px",
+                  borderRadius: "4px",
+                  marginTop: "0.2rem"
+                }}
+              >
                 {isLoading ? (
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem" }}>
-                    <span style={{ width: "15px", height: "15px", border: "2px solid rgba(0,0,0,0.25)", borderTop: "2px solid #000", borderRadius: "50%", display: "inline-block", animation: "vv-spin 0.8s linear infinite" }} />
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                    <span style={{ width: "15px", height: "15px", border: "2px solid rgba(255,255,255,0.3)", borderTop: "2px solid #FFFFFF", borderRadius: "50%", display: "inline-block", animation: "vv-spin 0.8s linear infinite" }} />
                     AUTHENTICATING...
                   </span>
                 ) : success ? "✓ ACCESS GRANTED" : "LOGIN ▶"}
               </button>
             </form>
-
-            <div style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid rgba(253,191,21,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", letterSpacing: "1px" }}>// AUTHORIZED LEADER SYSTEM</span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--text-muted)", letterSpacing: "1px" }}>VICEVERSE 2026</span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "0.75rem", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "rgba(255,255,255,0.18)", letterSpacing: "1px" }}>
-            TEAM LEADER PORTAL · IVC CLUB · VVCE · MYSURU
           </div>
         </div>
-      </div>
 
-      {/* BOTTOM BAR */}
-      <div style={{ position: "relative", zIndex: 10, borderTop: "1px solid rgba(253,191,21,0.08)", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", padding: "0.5rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "rgba(255,255,255,0.18)", letterSpacing: "2px" }}>VICEVERSE IDEATHON · AUTHORIZED TEAM LEADER ACCESS ONLY</span>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 5px var(--cyan)" }} />
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "rgba(0,212,255,0.45)", letterSpacing: "2px" }}>SECURE AUTH</span>
+        {/* COMPACT INSTRUCTIONS BLOCK DIRECTLY BELOW CARD */}
+        <div 
+          className={mounted ? "animate-fade-in" : ""} 
+          style={{ 
+            width: "100%", 
+            maxWidth: "460px", 
+            padding: "0.85rem 1.15rem", 
+            background: "rgba(12, 18, 32, 0.75)", 
+            backdropFilter: "blur(12px)", 
+            border: "1px solid rgba(255, 255, 255, 0.08)", 
+            borderRadius: "6px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+          }}
+        >
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", fontWeight: 700, color: "var(--cyan)", letterSpacing: "2px", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <HelpCircle size={14} style={{ color: "var(--cyan)" }} />
+            HOW TO LOGIN
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#B8C2D6", lineHeight: 1.4 }}>
+            <div><strong style={{ color: "var(--cyan)" }}>1.</strong> Enter your registered <span style={{ color: "#FFFFFF", fontWeight: 600 }}>Email ID</span>.</div>
+            <div><strong style={{ color: "var(--pink)" }}>2.</strong> Enter the unique Team ID provided to your team in the <span style={{ color: "#FFFFFF", fontWeight: 600 }}>"Team Unique ID"</span> field.</div>
+            <div><strong style={{ color: "var(--primary)" }}>3.</strong> Click <span style={{ color: "var(--primary)", fontWeight: 700 }}>LOGIN ▶</span> to open your Team Leader portal.</div>
+          </div>
+
+          <div style={{ marginTop: "0.45rem", paddingTop: "0.45rem", borderTop: "1px solid rgba(255,255,255,0.06)", fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "#8FA0BA", lineHeight: 1.35 }}>
+            Note: Only pre-registered Team Leaders can sign in. Facing issues? Contact IVC Club organizers.
+          </div>
         </div>
-      </div>
+
+      </main>
+
+      {/* BOTTOM BAR FOOTER WITH PORTAL ONLINE STATUS */}
+      <footer style={{ position: "relative", zIndex: 10, borderTop: "1px solid rgba(255,255,255,0.08)", background: "rgba(7,11,20,0.85)", backdropFilter: "blur(12px)", padding: "0.6rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", flexShrink: 0, width: "100%" }}>
+        
+        {/* PORTAL ONLINE STATUS */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 8px var(--cyan)" }} />
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", fontWeight: 600, color: "var(--cyan)", letterSpacing: "1.5px" }}>PORTAL ONLINE</span>
+        </div>
+
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "#8FA0BA", letterSpacing: "1px" }}>
+          VICEVERSE IDEATHON · AUTHORIZED TEAM LEADER ACCESS ONLY
+        </span>
+
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "#8FA0BA", letterSpacing: "1px" }}>
+          IVC CLUB · VVCE MYSURU
+        </span>
+      </footer>
     </div>
   );
 }
@@ -277,7 +380,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", background: "#0B0B0B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "#070B14", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="vv-spinner" />
       </div>
     }>

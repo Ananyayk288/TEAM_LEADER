@@ -20,23 +20,23 @@ export default function ProjectLockedCard() {
       }}
     >
       {/* Page header */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "2rem", textAlign: "center" }}>
         <div
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: "0.65rem",
-            color: "var(--text-muted)",
+            fontSize: "0.75rem",
+            color: "var(--pink)",
             letterSpacing: "2px",
             marginBottom: "0.4rem",
           }}
         >
-          // PROJECT
+          // PROJECT MODULE
         </div>
         <h1
           className="text-glow-pink"
           style={{
             fontFamily: "var(--font-heading)",
-            fontSize: "clamp(1.6rem, 4vw, 2.4rem)",
+            fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
             marginBottom: "0.4rem",
           }}
         >
@@ -45,8 +45,8 @@ export default function ProjectLockedCard() {
         <p
           style={{
             fontFamily: "var(--font-mono)",
-            fontSize: "0.72rem",
-            color: "var(--text-muted)",
+            fontSize: "0.8rem",
+            color: "#9AA8C0",
             letterSpacing: "1px",
           }}
         >
@@ -54,30 +54,21 @@ export default function ProjectLockedCard() {
         </p>
       </div>
 
-      {/* Locked card */}
+      {/* Locked card - Centered horizontally */}
       <div
         className="vv-card vv-corners"
         style={{
-          maxWidth: "640px",
+          maxWidth: "680px",
+          margin: "0 auto",
           padding: "3rem 2.5rem",
           textAlign: "center",
           position: "relative",
           overflow: "hidden",
-          background: "linear-gradient(135deg, #141414 0%, #0f0f0f 100%)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "#10172A",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: "6px",
         }}
       >
-        {/* Scanlines overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px)",
-            pointerEvents: "none",
-          }}
-        />
-
         {/* Ambient glow – pink */}
         <div
           style={{
@@ -88,7 +79,7 @@ export default function ProjectLockedCard() {
             width: "300px",
             height: "300px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(233,30,140,0.08) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(233,30,140,0.12) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -100,25 +91,25 @@ export default function ProjectLockedCard() {
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "72px",
-              height: "72px",
+              width: "80px",
+              height: "80px",
               borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(233,30,140,0.07)",
-              marginBottom: "1.75rem",
-              boxShadow: "0 0 30px rgba(233,30,140,0.12)",
+              border: "1px solid rgba(255,15,90,0.3)",
+              background: "rgba(255,15,90,0.1)",
+              marginBottom: "1.5rem",
+              boxShadow: "0 0 24px rgba(255,15,90,0.2)",
             }}
           >
-            <Lock size={30} style={{ color: "var(--pink)", opacity: 0.85 }} />
+            <Lock size={36} style={{ color: "var(--pink)" }} />
           </div>
 
           {/* Section label */}
           <div
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.6rem",
-              color: "var(--text-muted)",
-              letterSpacing: "3px",
+              fontSize: "0.75rem",
+              color: "#9AA8C0",
+              letterSpacing: "2px",
               marginBottom: "0.6rem",
             }}
           >
@@ -131,27 +122,29 @@ export default function ProjectLockedCard() {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              padding: "0.35rem 1rem",
-              border: "1px solid rgba(233,30,140,0.3)",
-              background: "rgba(233,30,140,0.06)",
+              padding: "0.4rem 1.2rem",
+              border: "1px solid rgba(255,15,90,0.4)",
+              background: "rgba(255,15,90,0.1)",
+              borderRadius: "4px",
               marginBottom: "1.5rem",
             }}
           >
             <div
               style={{
-                width: "6px",
-                height: "6px",
+                width: "8px",
+                height: "8px",
                 borderRadius: "50%",
                 background: "var(--pink)",
-                opacity: 0.7,
+                boxShadow: "0 0 8px var(--pink)",
               }}
             />
             <span
               style={{
                 fontFamily: "var(--font-heading)",
-                fontSize: "1rem",
+                fontSize: "1.05rem",
                 color: "var(--pink)",
-                letterSpacing: "3px",
+                letterSpacing: "2px",
+                fontWeight: 700,
               }}
             >
               LOCKED
@@ -162,24 +155,24 @@ export default function ProjectLockedCard() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "0.88rem",
-              color: "rgba(255,255,255,0.45)",
+              fontSize: "0.95rem",
+              color: "#C5CEDF",
               lineHeight: 1.7,
               marginBottom: "2rem",
-              maxWidth: "380px",
+              maxWidth: "440px",
               margin: "0 auto 2rem",
             }}
           >
-            Project submission is not open yet. The final window will be
-            announced by the Event Admin.
+            Project submission is not open yet. The final submission window will be
+            unlocked by the Event Admin during final hours.
           </p>
 
           {/* Divider */}
           <div
             style={{
-              width: "80px",
+              width: "100px",
               height: "1px",
-              background: "rgba(255,255,255,0.07)",
+              background: "rgba(255,255,255,0.12)",
               margin: "0 auto 1.5rem",
             }}
           />
@@ -190,32 +183,33 @@ export default function ProjectLockedCard() {
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: "1rem",
-              maxWidth: "360px",
+              maxWidth: "440px",
               margin: "0 auto",
             }}
           >
             {[
               { label: "WINDOW STATUS", value: "CLOSED", color: "var(--pink)" },
-              { label: "CONTROLLED BY", value: "ADMIN", color: "var(--text-dim)" },
-              { label: "FORM ACCESS", value: "RESTRICTED", color: "rgba(255,255,255,0.3)" },
+              { label: "CONTROLLED BY", value: "ADMIN", color: "#C5CEDF" },
+              { label: "FORM ACCESS", value: "RESTRICTED", color: "#FF0F5A" },
               { label: "ANNOUNCEMENT", value: "PENDING", color: "var(--primary)" },
             ].map((item) => (
               <div
                 key={item.label}
                 style={{
-                  padding: "0.85rem",
-                  background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.05)",
+                  padding: "0.95rem 1rem",
+                  background: "#0B111E",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: "4px",
                   textAlign: "left",
                 }}
               >
                 <div
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: "0.5rem",
-                    color: "var(--text-muted)",
-                    letterSpacing: "1.5px",
-                    marginBottom: "0.3rem",
+                    fontSize: "0.75rem",
+                    color: "#9AA8C0",
+                    letterSpacing: "1px",
+                    marginBottom: "0.35rem",
                   }}
                 >
                   {item.label}
@@ -223,9 +217,10 @@ export default function ProjectLockedCard() {
                 <div
                   style={{
                     fontFamily: "var(--font-heading)",
-                    fontSize: "0.75rem",
+                    fontSize: "0.85rem",
                     color: item.color,
                     letterSpacing: "1px",
+                    fontWeight: 700,
                   }}
                 >
                   {item.value}
@@ -234,23 +229,25 @@ export default function ProjectLockedCard() {
             ))}
           </div>
 
-          {/* Bottom notice */}
+          {/* Bottom notice - High readability warning box */}
           <div
             style={{
               marginTop: "2rem",
-              padding: "0.75rem 1rem",
-              border: "1px solid rgba(253,191,21,0.15)",
-              background: "rgba(253,191,21,0.04)",
+              padding: "1rem 1.25rem",
+              border: "1px solid rgba(253,191,21,0.3)",
+              background: "rgba(253,191,21,0.08)",
+              borderRadius: "4px",
               fontFamily: "var(--font-mono)",
-              fontSize: "0.65rem",
-              color: "rgba(253,191,21,0.6)",
-              letterSpacing: "1px",
+              fontSize: "0.85rem",
+              color: "#FDE047",
+              letterSpacing: "0.5px",
               lineHeight: 1.6,
+              textAlign: "center",
             }}
           >
             ⚡ FINAL WINDOW WILL BE ANNOUNCED BY EVENT ADMIN
             <br />
-            Complete your team setup and domain selection in the meantime.
+            Complete your payment and keep your Team QR ready for the event day.
           </div>
         </div>
       </div>

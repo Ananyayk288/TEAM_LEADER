@@ -31,8 +31,8 @@ export default function AnnouncementsCard() {
             onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.05)"}
             onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.025)"}>
               <div style={{
-                fontFamily:"var(--font-heading)",fontSize:"1.4rem",color:pc,
-                opacity:0.4,lineHeight:1,flexShrink:0,width:"28px",textAlign:"center",
+                fontFamily:"var(--font-heading)",fontSize:"1.3rem",color:pc,
+                opacity:0.5,lineHeight:1,flexShrink:0,minWidth:"34px",whiteSpace:"nowrap",textAlign:"center",
               }}>{a.code}</div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontFamily:"var(--font-heading)",fontSize:"0.82rem",color:"var(--text-main)",marginBottom:"0.25rem",letterSpacing:"0.5px"}}>

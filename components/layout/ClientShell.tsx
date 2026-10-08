@@ -4,6 +4,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { usePortal } from "@/context/PortalContext";
 import PortalLayout from "@/components/layout/PortalLayout";
 
+import { ToastProvider } from "@/components/ui/Toast";
+import PageTransition from "@/components/ui/PageTransition";
+
 const PUBLIC_ROUTES = ["/login"];
 const PROTECTED_ROUTES = ["/dashboard", "/team", "/payment", "/spoc", "/project", "/results"];
 
@@ -26,18 +29,24 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     }
   }, [isHydrated, isAuthenticated, authUser, pathname, isProtectedRoute, router]);
 
-  if (isPublicRoute) return <>{children}</>;
+  if (isPublicRoute) return <ToastProvider><PageTransition>{children}</PageTransition></ToastProvider>;
 
   if (isProtectedRoute && (!isAuthenticated || authUser?.role !== "TEAM_LEADER")) {
     return (
-      <div style={{ minHeight:"100vh", background:"#0B0B0B", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:"1.5rem" }}>
+      <div style={{ minHeight:"100vh", background:"var(--bg-deep)", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:"1.5rem" }}>
         <div className="vv-spinner" style={{ borderTopColor:"var(--pink)" }} />
-        <p style={{ fontFamily:"var(--font-heading)", fontSize:"0.95rem", color:"var(--pink)", letterSpacing:"3px", textTransform:"uppercase" }}>
+        <p style={{ fontFamily:"var(--font-mono)", fontSize:"0.95rem", color:"var(--pink)", letterSpacing:"3px", textTransform:"uppercase" }}>
           REDIRECTING TO LOGIN...
         </p>
       </div>
     );
   }
 
-  return <PortalLayout>{children}</PortalLayout>;
+  return (
+    <ToastProvider>
+      <PortalLayout>
+        <PageTransition key={pathname}>{children}</PageTransition>
+      </PortalLayout>
+    </ToastProvider>
+  );
 }
