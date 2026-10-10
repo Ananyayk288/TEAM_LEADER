@@ -14,6 +14,7 @@ import {
   Layers,
   HelpCircle,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import type { ProjectData, AdminField, ProjectStatus } from "@/lib/services/projectService";
 import { validateProjectForm } from "@/lib/validations/project";
@@ -111,6 +112,8 @@ function FormField({
   required = false,
   accentColor = "var(--cyan)",
   icon,
+  minChars,
+  showOpenLink,
 }: {
   id: string;
   label: string;
@@ -125,8 +128,21 @@ function FormField({
   required?: boolean;
   accentColor?: string;
   icon?: React.ReactNode;
+  minChars?: number;
+  showOpenLink?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
+  const trimmedLength = value.trim().length;
+  const isUrlValid = (() => {
+    if (!value || !value.trim()) return false;
+    try {
+      const u = new URL(value.trim());
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  })();
+
   const borderColor = error
     ? "var(--pink)"
     : focused
@@ -156,7 +172,7 @@ function FormField({
 
   return (
     <div style={{ marginBottom: "1.6rem" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "0.45rem" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "0.45rem", flexWrap: "wrap", gap: "0.5rem" }}>
         <label
           htmlFor={id}
           style={{
@@ -177,6 +193,23 @@ function FormField({
             <span style={{ color: "var(--text-muted)", fontSize: "0.55rem" }}>(OPTIONAL)</span>
           )}
         </label>
+        {minChars !== undefined && (
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: trimmedLength < minChars ? "var(--pink)" : "#00ff88",
+              letterSpacing: "0.5px",
+              fontWeight: 600,
+              background: trimmedLength < minChars ? "rgba(255,15,90,0.1)" : "rgba(0,255,136,0.1)",
+              border: `1px solid ${trimmedLength < minChars ? "rgba(255,15,90,0.3)" : "rgba(0,255,136,0.3)"}`,
+              padding: "0.15rem 0.45rem",
+              borderRadius: "3px",
+            }}
+          >
+            {trimmedLength} / {minChars} minimum
+          </span>
+        )}
       </div>
 
       {sublabel && (
@@ -230,6 +263,34 @@ function FormField({
         )}
       </div>
 
+      {showOpenLink && isUrlValid && (
+        <div style={{ marginTop: "0.45rem", display: "flex", justifyContent: "flex-end" }}>
+          <a
+            href={value.trim()}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: accentColor,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              textDecoration: "none",
+              background: "rgba(0,212,255,0.08)",
+              border: `1px solid ${accentColor}`,
+              padding: "0.25rem 0.6rem",
+              borderRadius: "3px",
+              fontWeight: 600,
+              letterSpacing: "0.5px",
+            }}
+          >
+            <span>OPEN LINK</span>
+            <ExternalLink size={12} />
+          </a>
+        </div>
+      )}
+
       <FieldError msg={error} />
     </div>
   );
@@ -255,13 +316,14 @@ export default function ProjectForm({
   const [projectName, setProjectName] = useState(initialData?.projectName ?? "");
   const [problemStatement, setProblemStatement] = useState(initialData?.problemStatement ?? "");
   const [proposedSolution, setProposedSolution] = useState(initialData?.proposedSolution ?? "");
-  const [projectDescription, setProjectDescription] = useState(initialData?.projectDescription ?? "");
+  const [systemArchitectureLink, setSystemArchitectureLink] = useState(
+    initialData?.systemArchitectureLink ?? initialData?.projectDescription ?? ""
+  );
   const [technologiesUsed, setTechnologiesUsed] = useState(initialData?.technologiesUsed ?? "");
 
   // Submission Links State (Strictly URLs — NO FILE UPLOADS)
   const [pptUrl, setPptUrl] = useState(initialData?.pptUrl ?? "");
   const [githubUrl, setGithubUrl] = useState(initialData?.githubUrl ?? "");
-  const [pitchDeckUrl, setPitchDeckUrl] = useState(initialData?.pitchDeckUrl ?? "");
   const [demoUrl, setDemoUrl] = useState(initialData?.demoUrl ?? "");
   const [additionalMaterialUrl, setAdditionalMaterialUrl] = useState(initialData?.additionalMaterialUrl ?? "");
 
@@ -277,12 +339,11 @@ export default function ProjectForm({
     projectName,
     problemStatement,
     proposedSolution,
-    projectDescription,
+    systemArchitectureLink: systemArchitectureLink.trim(),
     domain,
     technologiesUsed,
     pptUrl,
     githubUrl: githubUrl.trim() || undefined,
-    pitchDeckUrl: pitchDeckUrl.trim() || undefined,
     demoUrl: demoUrl.trim() || undefined,
     additionalMaterialUrl: additionalMaterialUrl.trim() || undefined,
     adminFieldValues: adminValues,
@@ -290,18 +351,52 @@ export default function ProjectForm({
     projectName,
     problemStatement,
     proposedSolution,
-    projectDescription,
+    systemArchitectureLink,
     domain,
     technologiesUsed,
     pptUrl,
     githubUrl,
-    pitchDeckUrl,
     demoUrl,
     additionalMaterialUrl,
     adminValues,
   ]);
 
   const { showToast } = useToast();
+
+  React.useEffect(() => {
+    setProjectName(initialData?.projectName ?? "");
+    setProblemStatement(initialData?.problemStatement ?? "");
+    setProposedSolution(initialData?.proposedSolution ?? "");
+    setSystemArchitectureLink(initialData?.systemArchitectureLink ?? initialData?.projectDescription ?? "");
+    setTechnologiesUsed(initialData?.technologiesUsed ?? "");
+    setPptUrl(initialData?.pptUrl ?? "");
+    setGithubUrl(initialData?.githubUrl ?? "");
+    setDemoUrl(initialData?.demoUrl ?? "");
+    setAdditionalMaterialUrl(initialData?.additionalMaterialUrl ?? "");
+  }, [initialData]);
+
+  const handleClearForm = () => {
+    setProjectName("");
+    setProblemStatement("");
+    setProposedSolution("");
+    setSystemArchitectureLink("");
+    setTechnologiesUsed("");
+    setPptUrl("");
+    setGithubUrl("");
+    setDemoUrl("");
+    setAdditionalMaterialUrl("");
+    setAdminValues({});
+    setErrors({});
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("vv_project_data");
+        localStorage.removeItem("vv_project_status");
+      } catch {
+        /* ignore */
+      }
+    }
+    showToast("All form data cleared! You can now start fresh.", "info");
+  };
 
   const handleSaveDraft = async () => {
     setErrors({});
@@ -325,7 +420,7 @@ export default function ProjectForm({
     setModalError(null);
     try {
       await onSubmitProject(buildData());
-      showToast("Project submitted successfully! ✓", "success");
+      showToast("Your final project has been submitted successfully and is now locked. You can view your submitted project details, but you cannot edit or resubmit them.", "success");
       setShowConfirm(false);
       router.replace("/dashboard");
     } catch (err: any) {
@@ -457,31 +552,33 @@ export default function ProjectForm({
         <FormField
           id="problemStatement"
           label="Problem Statement"
-          sublabel="Describe the specific problem or pain point your project addresses (minimum 20 characters)"
+          sublabel="Describe the specific problem or pain point your project addresses (minimum 300 characters)."
           value={problemStatement}
           onChange={setProblemStatement}
-          placeholder="Describe the exact problem, affected target audience, and existing limitations..."
+          placeholder="Describe the exact problem, affected target audience, and existing limitations (minimum 300 characters)..."
           textarea={true}
-          rows={4}
+          rows={5}
           error={errors.problemStatement}
           readOnly={isSubmitted}
           required={true}
           accentColor="var(--pink)"
+          minChars={300}
         />
 
         <FormField
           id="proposedSolution"
           label="Proposed Solution"
-          sublabel="Detail your solution, key features, and how it effectively solves the problem (minimum 20 characters)"
+          sublabel="Detail your solution, key features, and how it effectively solves the problem (minimum 300 characters)."
           value={proposedSolution}
           onChange={setProposedSolution}
-          placeholder="Explain your technical solution, core workflow, unique features, and expected outcomes..."
+          placeholder="Explain your technical solution, core workflow, unique features, and expected outcomes (minimum 300 characters)..."
           textarea={true}
-          rows={4}
+          rows={5}
           error={errors.proposedSolution}
           readOnly={isSubmitted}
           required={true}
           accentColor="var(--cyan)"
+          minChars={300}
         />
       </div>
 
@@ -494,18 +591,19 @@ export default function ProjectForm({
         />
 
         <FormField
-          id="projectDescription"
-          label="Detailed Project Description"
-          sublabel="Provide a thorough breakdown of system architecture, data flow, and implementation specifics (minimum 30 characters)"
-          value={projectDescription}
-          onChange={setProjectDescription}
-          placeholder="Detailed breakdown of components, system design, API integrations, and key algorithms..."
-          textarea={true}
-          rows={5}
-          error={errors.projectDescription}
+          id="systemArchitectureLink"
+          label="SYSTEM ARCHITECTURE LINK"
+          sublabel="Paste a shareable link to your system architecture diagram or technical architecture document (e.g., Google Drive). Make sure the link-sharing permissions allow the event organizers to view the document."
+          value={systemArchitectureLink}
+          onChange={setSystemArchitectureLink}
+          placeholder="https://drive.google.com/..."
+          textarea={false}
+          error={errors.systemArchitectureLink}
           readOnly={isSubmitted}
           required={true}
           accentColor="var(--primary)"
+          icon={<ExternalLink size={14} />}
+          showOpenLink={true}
         />
 
         <FormField
@@ -593,21 +691,6 @@ export default function ProjectForm({
           icon={<Github size={14} />}
         />
 
-        {/* 3. OPTIONAL: Pitch Deck Link */}
-        <FormField
-          id="pitchDeckUrl"
-          label="Pitch Deck Link"
-          sublabel="Link to your pitch deck slides or PDF document stored online"
-          value={pitchDeckUrl}
-          onChange={setPitchDeckUrl}
-          placeholder="https://drive.google.com/..."
-          error={errors.pitchDeckUrl}
-          readOnly={isSubmitted}
-          required={false}
-          accentColor="var(--pink)"
-          icon={<ExternalLink size={14} />}
-        />
-
         {/* 4. OPTIONAL: Prototype / Demo Link */}
         <FormField
           id="demoUrl"
@@ -653,6 +736,32 @@ export default function ProjectForm({
             border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
+          {/* Clear Form button */}
+          <button
+            type="button"
+            onClick={handleClearForm}
+            disabled={isSaving || isSubmittingFinal}
+            id="project-clear-form-btn"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.85rem 1.25rem",
+              background: "rgba(255,15,90,0.08)",
+              border: "1px solid rgba(255,15,90,0.3)",
+              color: "var(--pink)",
+              fontFamily: "var(--font-heading)",
+              fontSize: "0.8rem",
+              letterSpacing: "1px",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              marginRight: "auto",
+            }}
+          >
+            <Trash2 size={14} />
+            CLEAR ALL FORM FIELDS
+          </button>
+
           {/* Save Draft button */}
           <button
             type="button"

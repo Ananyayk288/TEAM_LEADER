@@ -121,6 +121,23 @@ const DEFAULT_STATE: WorkflowState = {
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
+export function resetWorkflowState(): WorkflowState {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("vv_project_data");
+      localStorage.removeItem("vv_project_status");
+      localStorage.removeItem("vv_project_window");
+      localStorage.removeItem("vv_payment_proof");
+      localStorage.removeItem("vv_payment_status");
+      window.dispatchEvent(new Event("vv_workflow_updated"));
+    } catch {
+      /* ignore */
+    }
+  }
+  return DEFAULT_STATE;
+}
+
 function readState(): WorkflowState {
   if (typeof window === "undefined") return DEFAULT_STATE;
   try {

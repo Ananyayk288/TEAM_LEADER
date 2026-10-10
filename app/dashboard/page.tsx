@@ -5,16 +5,6 @@ import StatusCard       from "@/components/dashboard/StatusCard";
 import MissionCard      from "@/components/dashboard/MissionCard";
 import SubmissionCard   from "@/components/dashboard/SubmissionCard";
 import AnnouncementsCard from "@/components/dashboard/AnnouncementsCard";
-import Link from "next/link";
-
-const NAV_SHORTCUTS = [
-  { href:"/team",      label:"TEAM INFO",       icon:"👥", color:"var(--primary)" },
-  { href:"/payment",   label:"PAYMENT",         icon:"💳", color:"var(--pink)"    },
-  { href:"/confirmed", label:"EVENT & TEAM QR", icon:"✅", color:"#00ff88"        },
-  { href:"/spoc",      label:"SPOC DETAILS",    icon:"📡", color:"var(--cyan)"    },
-  { href:"/project",   label:"PROJECT DATA",    icon:"📋", color:"var(--pink)"    },
-  { href:"/results",   label:"RESULTS & SCORE", icon:"🏆", color:"var(--primary)" },
-];
 
 export default function DashboardPage() {
   return (
@@ -48,38 +38,7 @@ export default function DashboardPage() {
           <HeroSection />
         </div>
 
-        {/* ── Quick Nav Shortcuts ── */}
-        <div className="animate-slide-up" style={{
-          display:"flex",gap:"0.75rem",flexWrap:"wrap",marginBottom:"1.5rem",
-        }}>
-          {NAV_SHORTCUTS.map(n => (
-            <Link key={n.href} href={n.href} style={{
-              display:"flex",alignItems:"center",gap:"0.5rem",
-              padding:"0.6rem 1.25rem",
-              background:"rgba(0,0,0,0.5)",
-              border:`1px solid ${n.color}44`,
-              borderRadius:"4px",
-              color:n.color,
-              fontFamily:"var(--font-heading)",fontSize:"0.8rem",letterSpacing:"1px",
-              textDecoration:"none",transition:"var(--transition)",
-              fontWeight:600,
-            }}
-            onMouseEnter={e=>{
-              const el = e.currentTarget as HTMLElement;
-              el.style.background=`${n.color}18`;
-              el.style.borderColor=n.color;
-              el.style.transform="translateY(-2px)";
-            }}
-            onMouseLeave={e=>{
-              const el = e.currentTarget as HTMLElement;
-              el.style.background="rgba(0,0,0,0.5)";
-              el.style.borderColor=`${n.color}44`;
-              el.style.transform="translateY(0)";
-            }}>
-              <span>{n.icon}</span> {n.label}
-            </Link>
-          ))}
-        </div>
+
 
         {/* ── Row 1: Squad | Status | Submission (3 cols) ── */}
         <div style={{

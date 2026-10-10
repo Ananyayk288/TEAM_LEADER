@@ -7,7 +7,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Unlock } from "lucide-react";
 import { usePortal } from "@/context/PortalContext";
 import {
   getProjectRecord,
@@ -189,29 +188,6 @@ export default function ProjectPage() {
 
         <div className="vv-narrow-container" style={{ position: "relative", zIndex: 1 }}>
           <ProjectLockedCard />
-
-          <div style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "rgba(255,255,255,0.12)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
-              // ADMIN CONTROL — SIMULATE FINAL WINDOW UNLOCK
-            </div>
-            <button
-              onClick={devToggleWindow}
-              id="dev-toggle-project-window"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: "0.5rem",
-                padding: "0.5rem 1rem",
-                background: "transparent", border: "1px dashed rgba(0,212,255,0.2)",
-                color: "rgba(0,212,255,0.4)", fontFamily: "var(--font-mono)",
-                fontSize: "0.6rem", letterSpacing: "1px", cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--cyan)"; e.currentTarget.style.color = "var(--cyan)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.2)"; e.currentTarget.style.color = "rgba(0,212,255,0.4)"; }}
-            >
-              <Unlock size={11} />
-              ADMIN SIMULATOR: UNLOCK FINAL PROJECT WINDOW (finalWindowOpen = true)
-            </button>
-          </div>
         </div>
       </main>
     );
@@ -252,7 +228,7 @@ export default function ProjectPage() {
         {!isSubmitted && (
           <div style={{ padding: "0.75rem 1rem", background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.15)", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.6rem", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "rgba(0,212,255,0.7)", letterSpacing: "1px" }}>
             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--cyan)", boxShadow: "0 0 6px var(--cyan)", flexShrink: 0, animation: "status-pulse 2s ease-in-out infinite" }} />
-            FINAL WINDOW OPEN — Fill in project fields (Project Name, Problem Statement, Solution, Description, Stack).
+            FINAL WINDOW OPEN — Fill in project fields (Project Name, Problem Statement, Solution, Stack).
           </div>
         )}
 
@@ -271,28 +247,6 @@ export default function ProjectPage() {
           isSubmittingFinal={isSubmittingFinal}
           draftSaved={draftSaved}
         />
-
-        <div style={{ marginTop: "2.5rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", color: "rgba(255,255,255,0.12)", letterSpacing: "2px", marginBottom: "0.5rem" }}>
-            // DEV TOOLS — SIMULATE LOCKING WINDOW
-          </div>
-          <button
-            onClick={devToggleWindow}
-            id="dev-close-project-window"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.5rem 1rem",
-              background: "transparent", border: "1px dashed rgba(233,30,140,0.2)",
-              color: "rgba(233,30,140,0.4)", fontFamily: "var(--font-mono)",
-              fontSize: "0.6rem", letterSpacing: "1px", cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--pink)"; e.currentTarget.style.color = "var(--pink)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(233,30,140,0.2)"; e.currentTarget.style.color = "rgba(233,30,140,0.4)"; }}
-          >
-            🔒 SIMULATE: LOCK SUBMISSION WINDOW (finalWindowOpen = false)
-          </button>
-        </div>
       </div>
     </main>
   );

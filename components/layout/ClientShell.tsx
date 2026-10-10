@@ -8,7 +8,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import PageTransition from "@/components/ui/PageTransition";
 
 const PUBLIC_ROUTES = ["/login"];
-const PROTECTED_ROUTES = ["/dashboard", "/team", "/payment", "/spoc", "/project", "/results"];
+const PROTECTED_ROUTES = ["/dashboard", "/team", "/confirmed", "/spoc", "/project", "/results"];
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

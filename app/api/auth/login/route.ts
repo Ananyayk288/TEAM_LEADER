@@ -101,7 +101,6 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
-      maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/",
     });
 

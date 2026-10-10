@@ -65,8 +65,43 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  transform: translate3d(0, 0, 0);
 }
+
+.vv-sidebar-desktop {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 240px !important;
+  height: 100vh !important;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-blue);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+}
+
+.vv-header-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: 0 !important;
+  height: 58px !important;
+  background: #070B14;
+  border-bottom: 1px solid var(--border-blue);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  z-index: 30;
+}
+
+@media (min-width: 1024px) {
+  .vv-header-fixed {
+    left: 240px !important;
+  }
+}
+
 
 img, video, canvas, svg {
   max-width: 100%;

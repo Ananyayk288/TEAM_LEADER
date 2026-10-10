@@ -26,14 +26,14 @@ export interface ProjectData {
   projectName: string;
   problemStatement: string;
   proposedSolution: string;
-  projectDescription: string;
+  systemArchitectureLink: string;
+  projectDescription?: string; // Optional for backward compatibility
   domain: string;
   technologiesUsed: string;
 
   // FINAL SUBMISSION LINKS (URLs only)
   pptUrl: string;                 // PPT / PRESENTATION LINK — REQUIRED
   githubUrl?: string;             // GITHUB REPOSITORY URL — OPTIONAL
-  pitchDeckUrl?: string;          // PITCH DECK URL — OPTIONAL
   demoUrl?: string;               // PROTOTYPE / DEMO URL — OPTIONAL
   additionalMaterialUrl?: string; // ADDITIONAL MATERIAL URL — OPTIONAL
 

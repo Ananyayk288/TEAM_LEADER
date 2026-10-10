@@ -213,15 +213,9 @@ export default function TeamPage() {
                     <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: "1.05rem", color: "#FFFFFF" }}>
                       {m.name}
                     </span>
-                    {m.isLeader ? (
-                      <span style={{ padding: "0.2rem 0.6rem", background: "var(--primary)", fontFamily: "var(--font-heading)", fontSize: "0.65rem", color: "#FFFFFF", borderRadius: "3px", letterSpacing: "1px" }}>
-                        MEMBER 1 (LEADER)
-                      </span>
-                    ) : (
-                      <span style={{ padding: "0.2rem 0.6rem", background: "rgba(56,225,232,0.15)", border: "1px solid rgba(56,225,232,0.3)", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)", borderRadius: "3px", letterSpacing: "1px" }}>
-                        MEMBER {idx + 1}
-                      </span>
-                    )}
+                    <span style={{ padding: "0.2rem 0.6rem", background: "rgba(56,225,232,0.15)", border: "1px solid rgba(56,225,232,0.3)", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)", borderRadius: "3px", letterSpacing: "1px" }}>
+                      MEMBER {idx + 1}
+                    </span>
                   </div>
 
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "#B8C2D6", display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "0.3rem" }}>

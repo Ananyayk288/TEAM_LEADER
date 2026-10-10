@@ -158,11 +158,10 @@ export default function RosterCard({
         <div className="flex items-center gap-2.5">
           <button
             onClick={onToggleLock}
-            className={`font-mono text-xs uppercase px-3 py-1.5 rounded border transition-all flex items-center gap-1.5 font-bold ${
-              isLocked
+            className={`font-mono text-xs uppercase px-3 py-1.5 rounded border transition-all flex items-center gap-1.5 font-bold ${isLocked
                 ? "border-cyber-neon-red text-cyber-neon-red bg-cyber-neon-red/10 hover:bg-cyber-neon-red/20 shadow-neon-red"
                 : "border-cyber-neon-green text-cyber-neon-green bg-cyber-neon-green/10 hover:bg-cyber-neon-green/20 shadow-neon-green"
-            }`}
+              }`}
           >
             {isLocked ? (
               <>
@@ -219,9 +218,8 @@ export default function RosterCard({
             Security Status
           </span>
           <span
-            className={`font-bold mt-1 block ${
-              isLocked ? "text-cyber-neon-green" : "text-cyber-neon-amber"
-            }`}
+            className={`font-bold mt-1 block ${isLocked ? "text-cyber-neon-green" : "text-cyber-neon-amber"
+              }`}
           >
             {isLocked ? "SEALED // ENCRYPTED" : "MODIFIABLE // OPEN"}
           </span>
@@ -235,11 +233,10 @@ export default function RosterCard({
             <button
               key={role}
               onClick={() => setFilterRole(role)}
-              className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap border ${
-                filterRole === role
+              className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap border ${filterRole === role
                   ? "bg-cyber-neon-cyan/20 border-cyber-neon-cyan text-cyber-neon-cyan font-bold"
                   : "bg-cyber-surface/60 border-cyber-border text-cyber-muted hover:text-cyber-pale"
-              }`}
+                }`}
             >
               {role}
             </button>
@@ -318,11 +315,10 @@ export default function RosterCard({
                   <button
                     onClick={() => handleSimulateScan(member.id)}
                     disabled={isLocked || isScanning}
-                    className={`px-2.5 py-1 rounded text-xs border flex items-center gap-1.5 transition-all ${
-                      member.biometricVerified
+                    className={`px-2.5 py-1 rounded text-xs border flex items-center gap-1.5 transition-all ${member.biometricVerified
                         ? "border-cyber-neon-green/40 text-cyber-neon-green bg-cyber-neon-green/10 hover:border-cyber-neon-green"
                         : "border-cyber-neon-amber/50 text-cyber-neon-amber bg-cyber-neon-amber/10 hover:border-cyber-neon-amber"
-                    } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
+                      } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                     title={
                       isLocked
                         ? "Roster is sealed"

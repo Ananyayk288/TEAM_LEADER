@@ -25,18 +25,40 @@ export const ProjectDataSchema = z.object({
 
   problemStatement: z
     .string()
-    .min(20, "Problem statement must be at least 20 characters")
-    .max(1000, "Problem statement must be 1000 characters or fewer"),
+    .transform((val) => val.trim())
+    .refine((val) => val.length >= 300, {
+      message: "Problem Statement must be at least 300 characters",
+    })
+    .refine((val) => val.length <= 1000, {
+      message: "Problem Statement must be 1000 characters or fewer",
+    }),
 
   proposedSolution: z
     .string()
-    .min(20, "Proposed solution must be at least 20 characters")
-    .max(1000, "Proposed solution must be 1000 characters or fewer"),
+    .transform((val) => val.trim())
+    .refine((val) => val.length >= 300, {
+      message: "Proposed Solution must be at least 300 characters",
+    })
+    .refine((val) => val.length <= 1000, {
+      message: "Proposed Solution must be 1000 characters or fewer",
+    }),
 
-  projectDescription: z
-    .string()
-    .min(30, "Project description must be at least 30 characters")
-    .max(2000, "Project description must be 2000 characters or fewer"),
+  systemArchitectureLink: z
+    .string({ required_error: "System Architecture Link is required." })
+    .transform((val) => val.trim())
+    .refine((val) => val.length > 0, {
+      message: "System Architecture Link is required.",
+    })
+    .refine((val) => {
+      try {
+        const u = new URL(val);
+        return u.protocol === "https:" || u.protocol === "http:";
+      } catch {
+        return false;
+      }
+    }, {
+      message: "Please enter a valid System Architecture URL (e.g., https://drive.google.com/...)",
+    }),
 
   domain: z
     .string()
@@ -65,11 +87,6 @@ export const ProjectDataSchema = z.object({
     .string()
     .optional()
     .refine(isStrictHttpsUrl, "GitHub Repository URL must start with https://"),
-
-  pitchDeckUrl: z
-    .string()
-    .optional()
-    .refine(isStrictHttpsUrl, "Pitch Deck URL must start with https://"),
 
   demoUrl: z
     .string()

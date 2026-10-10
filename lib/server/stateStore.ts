@@ -34,12 +34,12 @@ export interface ProjectData {
   projectName: string;
   problemStatement: string;
   proposedSolution: string;
-  projectDescription: string;
+  systemArchitectureLink: string;
+  projectDescription?: string;
   domain: string;
   technologiesUsed: string;
   pptUrl: string;
   githubUrl?: string;
-  pitchDeckUrl?: string;
   demoUrl?: string;
   additionalMaterialUrl?: string;
 }
@@ -130,3 +130,12 @@ export function updateServerWorkflowState(
   serverStateStore.set(teamId, updated);
   return updated;
 }
+
+export function resetServerState(teamId?: string) {
+  if (teamId) {
+    serverStateStore.set(teamId, getDefaultServerState(teamId));
+  } else {
+    serverStateStore.clear();
+  }
+}
+

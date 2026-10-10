@@ -88,12 +88,12 @@ export async function POST(request: NextRequest) {
       projectName,
       problemStatement,
       proposedSolution,
+      systemArchitectureLink,
       projectDescription,
       domain,
       technologiesUsed,
       pptUrl,
       githubUrl,
-      pitchDeckUrl,
       demoUrl,
       additionalMaterialUrl,
       isFinalSubmit,
@@ -103,21 +103,30 @@ export async function POST(request: NextRequest) {
     const cleanProjectName = sanitizeText(projectName, 100);
     const cleanProblem = sanitizeText(problemStatement, 1000);
     const cleanSolution = sanitizeText(proposedSolution, 1000);
-    const cleanDesc = sanitizeText(projectDescription, 2000);
+    const archLinkRaw = systemArchitectureLink || projectDescription || "";
+    const cleanArchLink = typeof archLinkRaw === "string" ? archLinkRaw.trim() : "";
     const cleanDomain = sanitizeText(domain, 100);
     const cleanTech = sanitizeText(technologiesUsed, 500);
 
     if (cleanProjectName.length < 3) {
       return NextResponse.json({ error: "Project Title must be at least 3 characters long." }, { status: 400 });
     }
-    if (cleanProblem.length < 20) {
-      return NextResponse.json({ error: "Problem Statement must be at least 20 characters long." }, { status: 400 });
+    if (Boolean(isFinalSubmit) && cleanProblem.length < 300) {
+      return NextResponse.json({ error: "Problem Statement must be at least 300 characters long for final submission." }, { status: 400 });
     }
-    if (cleanSolution.length < 20) {
-      return NextResponse.json({ error: "Proposed Solution must be at least 20 characters long." }, { status: 400 });
+    if (Boolean(isFinalSubmit) && cleanSolution.length < 300) {
+      return NextResponse.json({ error: "Proposed Solution must be at least 300 characters long for final submission." }, { status: 400 });
     }
-    if (cleanDesc.length < 30) {
-      return NextResponse.json({ error: "Project Description must be at least 30 characters long." }, { status: 400 });
+    if (!cleanArchLink) {
+      return NextResponse.json({ error: "System Architecture Link is required." }, { status: 400 });
+    }
+    try {
+      const parsedUrl = new URL(cleanArchLink);
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        return NextResponse.json({ error: "System Architecture Link must be a valid http:// or https:// URL." }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Please enter a valid System Architecture URL (e.g., https://drive.google.com/...)." }, { status: 400 });
     }
 
     // 6. STRICT HTTPS-ONLY URL VALIDATION FOR PPT LINK (REQUIRED)
@@ -132,12 +141,6 @@ export async function POST(request: NextRequest) {
     if (githubUrl && !isStrictHttpsUrl(githubUrl)) {
       return NextResponse.json(
         { error: "GitHub Repository URL must be a valid https:// link." },
-        { status: 400 }
-      );
-    }
-    if (pitchDeckUrl && !isStrictHttpsUrl(pitchDeckUrl)) {
-      return NextResponse.json(
-        { error: "Pitch Deck URL must be a valid https:// link." },
         { status: 400 }
       );
     }
@@ -158,12 +161,11 @@ export async function POST(request: NextRequest) {
       projectName: cleanProjectName,
       problemStatement: cleanProblem,
       proposedSolution: cleanSolution,
-      projectDescription: cleanDesc,
+      systemArchitectureLink: cleanArchLink,
       domain: cleanDomain || state.selectedDomainName,
       technologiesUsed: cleanTech,
       pptUrl: (pptUrl as string).trim(),
       githubUrl: githubUrl ? (githubUrl as string).trim() : undefined,
-      pitchDeckUrl: pitchDeckUrl ? (pitchDeckUrl as string).trim() : undefined,
       demoUrl: demoUrl ? (demoUrl as string).trim() : undefined,
       additionalMaterialUrl: additionalMaterialUrl ? (additionalMaterialUrl as string).trim() : undefined,
     };

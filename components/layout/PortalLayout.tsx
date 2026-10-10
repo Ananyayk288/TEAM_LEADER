@@ -5,19 +5,17 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { usePortal } from "@/context/PortalContext";
 import {
-  LayoutDashboard, Users, CreditCard, User, FolderOpen,
-  Trophy, LogOut, ChevronRight, CheckCircle
+  LayoutDashboard, Users, User, FolderOpen,
+  Trophy, LogOut, ChevronRight, CheckCircle, X
 } from "lucide-react";
-import AdminControlPanel from "./AdminControlPanel";
 
 const navItems = [
-  { path:"/dashboard", name:"DASHBOARD",       icon:LayoutDashboard, code:"01", badge:"ACTIVE",  badgeColor:"var(--cyan)"    },
-  { path:"/team",      name:"TEAM INFO",       icon:Users,           code:"02", badge:"ROSTER",  badgeColor:"var(--primary)" },
-  { path:"/payment",   name:"PAYMENT",         icon:CreditCard,      code:"03", badge:"PAY",     badgeColor:"var(--pink)"    },
-  { path:"/confirmed", name:"EVENT & TEAM QR", icon:CheckCircle,     code:"04", badge:"READY",   badgeColor:"#00ff88"       },
-  { path:"/spoc",      name:"SPOC DETAILS",    icon:User,            code:"05", badge:"INFO",    badgeColor:"var(--cyan)"    },
-  { path:"/project",   name:"PROJECT DATA",    icon:FolderOpen,      code:"06", badge:"FINAL",   badgeColor:"var(--pink)"    },
-  { path:"/results",   name:"RESULTS & SCORE", icon:Trophy,          code:"07", badge:"VIEW",    badgeColor:"var(--primary)" },
+  { path:"/dashboard", name:"DASHBOARD",                  icon:LayoutDashboard, code:"01", badge:"ACTIVE", badgeColor:"var(--cyan)"    },
+  { path:"/team",      name:"TEAM INFO",                  icon:Users,           code:"02", badge:"ROSTER", badgeColor:"var(--primary)" },
+  { path:"/confirmed", name:"TEAM, EVENT STATUS & QR",    icon:CheckCircle,     code:"03", badge:"READY",  badgeColor:"#00ff88"       },
+  { path:"/spoc",      name:"SPOC DETAILS",               icon:User,            code:"04", badge:"INFO",   badgeColor:"var(--cyan)"    },
+  { path:"/project",   name:"PROJECT DATA",               icon:FolderOpen,      code:"05", badge:"FINAL",  badgeColor:"var(--pink)"    },
+  { path:"/results",   name:"RESULTS & SCORE",            icon:Trophy,          code:"06", badge:"VIEW",   badgeColor:"var(--primary)" },
 ];
 
 // ─── ISOLATED CLOCK WIDGET ──────────────────────────────────────────────────
@@ -42,7 +40,7 @@ interface NavContentProps {
   onLogout?: () => void;
 }
 
-function NavContent({ pathname, authUser, onNavigate, onLogout }: NavContentProps) {
+function NavContent({ pathname, authUser, onNavigate }: NavContentProps) {
   return (
     <div style={{ display:"flex", flexDirection:"column", height:"100%", width:"100%" }}>
       {/* Brand Header */}
@@ -84,40 +82,6 @@ function NavContent({ pathname, authUser, onNavigate, onLogout }: NavContentProp
           );
         })}
       </nav>
-
-      {/* Footer Info & Mobile Logout */}
-      <div style={{ padding:"0.85rem 1rem", borderTop:"1px solid var(--border-blue)", flexShrink:0, display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-        <div style={{ fontFamily:"var(--font-mono)", fontSize:"0.7rem", color:"var(--text-muted)", letterSpacing:"1px" }}>
-          <span style={{ color:"var(--cyan)" }}>&#9679;</span>&#160; GRID ONLINE &middot; <ClockWidget />
-        </div>
-
-        {onLogout && (
-          <button
-            onClick={onLogout}
-            style={{
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              gap:"0.5rem",
-              width:"100%",
-              minHeight:"44px",
-              padding:"0.6rem",
-              background:"var(--primary)",
-              border:"none",
-              borderRadius:"4px",
-              color:"#fff",
-              fontFamily:"var(--font-heading)",
-              fontSize:"0.8rem",
-              letterSpacing:"1px",
-              fontWeight:700,
-              cursor:"pointer",
-            }}
-          >
-            <LogOut size={15} />
-            <span>LOGOUT PORTAL</span>
-          </button>
-        )}
-      </div>
     </div>
   );
 }
@@ -126,6 +90,23 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const router = useRouter();
   const { authUser, logout } = usePortal();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile drawer on route change & prevent body scroll when drawer is open
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -134,40 +115,93 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   return (
     <div style={{ display:"flex", minHeight:"100dvh", width:"100%", background:"var(--bg-deep)", overflowX:"hidden" }}>
-      {/* Desktop Sidebar (>=1024px) */}
-      <aside style={{ width:"240px", flexShrink:0, background:"var(--bg-secondary)", borderRight:"1px solid var(--border-blue)", display:"flex", flexDirection:"column" }} className="hidden lg:flex">
-        <NavContent pathname={pathname} authUser={authUser} onLogout={handleLogout} />
+      {/* Desktop Sidebar (Fixed on Left >=1024px) */}
+      <aside className="vv-sidebar-desktop hidden lg:flex">
+        <NavContent pathname={pathname} authUser={authUser} />
       </aside>
 
-      {/* Main Container */}
-      <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, width:"100%" }}>
-        {/* Sticky Top Navigation Header */}
-        <header 
-          style={{ 
-            height:"58px", 
-            flexShrink:0, 
-            background:"#070B14", 
-            borderBottom:"1px solid var(--border-blue)", 
-            display:"flex", 
-            alignItems:"center", 
-            justifyContent:"space-between",
-            padding:"0 1rem", 
-            position:"sticky", 
-            top:0, 
-            zIndex:30,
-            paddingLeft: "max(1rem, env(safe-area-inset-left))",
-            paddingRight: "max(1rem, env(safe-area-inset-right))",
+      {/* Mobile Nav Drawer (<1024px) */}
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            display: "flex",
           }}
         >
+          {/* Backdrop */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(4px)",
+            }}
+          />
+          {/* Drawer container */}
+          <aside
+            style={{
+              position: "relative",
+              width: "280px",
+              maxWidth: "85vw",
+              height: "100%",
+              background: "#0D131F",
+              borderRight: "1px solid var(--border-blue)",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 0 30px rgba(0,0,0,0.8)",
+              zIndex: 51,
+            }}
+          >
+            {/* Close button at top right of drawer */}
+            <div style={{ position: "absolute", top: "0.75rem", right: "0.75rem", zIndex: 10 }}>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close Navigation Menu"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#fff",
+                  padding: "0.4rem",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <NavContent
+              pathname={pathname}
+              authUser={authUser}
+              onNavigate={() => setMobileMenuOpen(false)}
+            />
+          </aside>
+        </div>
+      )}
+
+      {/* Main Container (Offset by fixed sidebar width on desktop) */}
+      <div
+        className="lg:pl-[240px]"
+        style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, width:"100%" }}
+      >
+        {/* Fixed Top Navigation Header */}
+        <header className="vv-header-fixed">
+
           <div style={{ display:"flex", alignItems:"center", gap:"0.65rem", minWidth:0 }}>
-            <div className="lg:hidden" style={{ display:"flex", alignItems:"center", gap:"0.4rem", minWidth:0 }}>
-              <Image src="/viceverse_logo.png" alt="ViceVerse" width={28} height={28} style={{ objectFit:"contain", flexShrink:0 }} priority />
+            <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", minWidth:0 }}>
+              <Image src="/viceverse_logo.png" alt="ViceVerse" width={24} height={24} style={{ objectFit:"contain", flexShrink:0 }} priority />
               <span style={{ fontFamily:"var(--font-heading)", fontSize:"0.75rem", color:"var(--primary)", letterSpacing:"1.5px", fontWeight:700, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                 TEAM LEADER PORTAL
               </span>
             </div>
 
-            <div className="hidden lg:flex" style={{ fontFamily:"var(--font-mono)", fontSize:"0.75rem", color:"var(--text-muted)", letterSpacing:"1px" }}>
+            <div className="hidden sm:flex" style={{ fontFamily:"var(--font-mono)", fontSize:"0.75rem", color:"var(--text-muted)", letterSpacing:"1px", marginLeft:"0.5rem" }}>
               <span style={{ color:"var(--cyan)" }}>&#9632;</span>&#160; <ClockWidget /> &nbsp;&middot;&nbsp; GRID: ONLINE
             </div>
           </div>
@@ -213,60 +247,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </div>
         </header>
 
-        {/* Horizontal Navigation Bar for mobile/tablet screens */}
-        <div 
-          className="lg:hidden" 
-          style={{ 
-            background: "#0D131F", 
-            borderBottom: "1px solid var(--border-blue)", 
-            overflowX: "auto", 
-            display: "flex", 
-            alignItems: "center", 
-            padding: "0.5rem 0.75rem", 
-            gap: "0.5rem",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-          }}
-        >
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.path || (item.path === "/dashboard" && pathname === "/");
-            return (
-              <Link 
-                key={item.path} 
-                href={item.path} 
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  padding: "0.45rem 0.75rem",
-                  background: isActive ? "rgba(253,191,21,0.15)" : "rgba(255,255,255,0.03)",
-                  border: `1px solid ${isActive ? "var(--primary)" : "rgba(255,255,255,0.08)"}`,
-                  borderRadius: "4px",
-                  color: isActive ? "var(--primary)" : "var(--text-muted)",
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "0.72rem",
-                  letterSpacing: "1px",
-                  whiteSpace: "nowrap",
-                  textDecoration: "none",
-                  flexShrink: 0,
-                  minHeight: "36px",
-                }}
-              >
-                <Icon size={14} style={{ color: isActive ? "var(--primary)" : "var(--text-muted)" }} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-
-        <main className="vv-main-container" style={{ flex:1, width:"100%" }}>
+        <main className="vv-main-container" style={{ flex:1, width:"100%", paddingTop:"74px" }}>
           {children}
         </main>
       </div>
-
-      {/* Admin Simulator Floating Controls */}
-      <AdminControlPanel />
     </div>
   );
 }

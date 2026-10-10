@@ -95,12 +95,12 @@ export default function SubmitPage() {
     try {
       const proj = await getProjectRecord();
       const existingData: ProjectData = proj.data || {
-        projectName: `${state.teamName} Project`,
-        problemStatement: `Solving core challenges in ${state.selectedDomainName}`,
-        proposedSolution: `Next-generation security and automation system.`,
-        projectDescription: `Comprehensive hackathon project for ${state.selectedDomainName}`,
+        projectName: "",
+        problemStatement: "",
+        proposedSolution: "",
+        systemArchitectureLink: "",
         domain: state.selectedDomainName,
-        technologiesUsed: "Next.js, TypeScript, Python",
+        technologiesUsed: "",
         pptUrl: pptUrl.trim(),
       };
 
